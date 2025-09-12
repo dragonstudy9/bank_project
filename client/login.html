@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        #container { background-color: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); width: 100%; max-width: 400px; text-align: center; }
+        h1 { margin-bottom: 2rem; color: #333; }
+        .input-group { margin-bottom: 1.5rem; text-align: left; }
+        label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #555; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        button { width: 100%; padding: 0.75rem; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background-color 0.3s, transform 0.1s; font-weight: bold; }
+        .login-btn { background-color: #007bff; color: white; margin-bottom: 0.75rem; }
+        .login-btn:hover { background-color: #0056b3; transform: translateY(-2px); }
+        .join-btn { background-color: #6c757d; color: white; }
+        .join-btn:hover { background-color: #5a6268; transform: translateY(-2px); }
+        .message-box { padding: 1rem; border-radius: 8px; margin-top: 1.5rem; font-weight: bold; }
+        .message-success { background-color: #e6ffed; color: #28a745; border: 1px solid #c3e6cb; }
+        .message-error { background-color: #f8d7da; color: #dc3545; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="container">
+            <h1>로그인</h1>
+            <div class="input-group">
+                <label>아이디</label>
+                <input type="text" v-model="userId" placeholder="아이디를 입력하세요">
+            </div>
+            <div class="input-group">
+                <label>비밀번호</label>
+                <input type="password" v-model="pwd" placeholder="비밀번호를 입력하세요">
+            </div>
+            <div>
+                <button class="login-btn" @click="fnLogin">로그인</button>
+                <button class="join-btn" @click="fnJoin">회원가입</button>
+            </div>
+            <div v-if="message" class="message-box" :class="messageClass">
+                {{ message }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                userId: "",
+                pwd: "",
+                message: "", // 로그인 결과 메시지
+                messageClass: "" // 메시지 스타일 클래스
+            };
+        },
+        methods: {
+            fnLogin: function () {
+                let self = this;
+                // 메시지 초기화
+                self.message = "";
+
+                let param = {
+                    client_id: self.userId,
+                    client_password: self.pwd
+                };
+
+                $.ajax({
+                    url: "http://localhost:3009/login",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+                        console.log("서버 응답:", data);
+                        if (data.success) {
+                            // 로그인 성공
+                            self.message = data.user_info.CLIENT_NAME + "님 환영합니다.";
+                            self.messageClass = "message-success";
+                            
+                            sessionStorage.setItem("sessionId", data.user_info.CLIENT_ID);
+                            sessionStorage.setItem("sessionStatus", data.user_info.CLIENT_STATUS);
+
+                            // 1.5초 후 페이지 이동
+                            setTimeout(() => {
+                                location.href = "main.html";
+                            }, 1500);
+
+                        } else {
+                            // 로그인 실패
+                            self.message = data.message;
+                            self.messageClass = "message-error";
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        // 통신 오류
+                        console.error("통신 오류:", textStatus, errorThrown);
+                        self.message = "아이디 혹은 패스워드를 다시 확인해주세요.";
+                        self.messageClass = "message-error";
+                    }
+                });
+            },
+            fnJoin: function() {
+                // 회원가입 페이지로 이동하는 로직
+                location.href = "join.html";
+            }
+        }
+    });
+
+    app.mount('#app');
+</script>

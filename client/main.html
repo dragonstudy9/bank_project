@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>원정은행 메인화면</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <button id="login" @click="fnLogin">로그인</button>
+        <button id="join" @click="fnJoin">회원가입</button>
+        <button id="account-list" @click="fnAccountList">계좌조회</button>
+        <button id="deposit-add" @click="fnDepositAdd">예금입금</button>
+        <button id="deposit-withdraw" @click="fnDepositWithdraw">예금출금</button>
+        <button id="deposit-transfer" @click="fnDepositTransfer">계좌이체</button>
+        <button id="borrow" @click="fnBorrow">대출</button>
+        <button id="borrow-repay" @click="fnBorrowRepay">대출 상환</button>
+    </div>
+</body>
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                // 변수 - (key : value)
+            };
+        },
+        methods: {
+            // 함수(메소드) - (key : function())
+            fnUserList: function () {
+                let self = this;
+                $.ajax({
+                    url: "",
+                    dataType: "json",
+                    type: "GET",
+                    data: {},
+                    success: function (data) {
+
+                    }
+                });
+            },
+            fnLogin: function(){
+                location.href="login.html";
+            },
+            fnJoin: function(){
+                location.href="join.html";
+            },
+            fnAccountList: function(){
+                location.href="account-list.html";
+            },
+            fnDepositAdd: function(){
+                location.href="deposit-add.html";
+            },
+            fnDepositWithdraw: function(){
+                location.href="deposit-withdraw.html";
+            },
+            fnDepositTransfer: function(){
+                location.href="deposit-transfer.html";
+            },
+            fnBorrow: function(){
+                location.href="borrow.html";
+            },
+            fnBorrowRepay: function(){
+                location.href="borrow-repay.html";
+            }
+        }, // methods
+        mounted() {
+            // 처음 시작할 때 실행되는 부분
+        }
+    });
+
+    app.mount('#app');
+</script>
