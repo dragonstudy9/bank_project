@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>계좌내역조회</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+    <div id="app" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">계좌내역 조회</h1>
+        
+        <!-- 계좌 기본 정보 섹션 -->
+        <div class="bg-gray-100 p-6 rounded-xl mb-6 shadow-sm">
+            <div class="text-xl font-semibold text-gray-700 mb-2">{{ accountName }} ({{ accountNo }})</div>
+            <div class="text-3xl font-bold text-gray-900">{{ formatWealth(wealth) }}</div>
+        </div>
+
+        <!-- 검색 및 필터링 -->
+        <div class="mb-4">
+            <select v-model="transactionKind" @change="fnAccountView"
+                class="px-4 py-2 border rounded-full shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">:: 전체 ::</option>
+                <option value="입금">입금</option>
+                <option value="출금">출금</option>
+                <option value="이체">이체</option>
+            </select>
+        </div>
+
+        <!-- 정보 출력 테이블 -->
+        <div class="overflow-x-auto">
+            <table class="w-full table-auto">
+                <thead>
+                    <tr class="bg-blue-600 text-white text-left text-sm font-semibold rounded-t-xl">
+                        <th class="px-6 py-3 rounded-tl-xl">거래날짜</th>
+                        <th class="px-6 py-3">거래번호</th>
+                        <th class="px-6 py-3">거래종류</th>
+                        <th class="px-6 py-3">보낸이 계좌번호</th>
+                        <th class="px-6 py-3">받는이 계좌번호</th>
+                        <th class="px-6 py-3">거래량</th>
+                        <th class="px-6 py-3 rounded-tr-xl">메모</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <tr v-if="list.length === 0" class="text-center text-gray-500">
+                        <td colspan="7" class="py-4">거래내역이 없습니다.</td>
+                    </tr>
+                    <tr v-else v-for="item in list" :key="item.TRANSACTION_NO" class="hover:bg-gray-50">
+                        <td class="px-6 py-4">{{ formatDate(item.TRANSACTION_DATE) }}</td>
+                        <td class="px-6 py-4">{{ item.TRANSACTION_NO }}</td>
+                        <td class="px-6 py-4">{{ item.TRANSACTION_KIND }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ item.FROM_ACCOUNT }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ item.TO_ACCOUNT }}</td>
+                        <td class="px-6 py-4">{{ formatWealth(item.AMOUNT) }}</td>
+                        <td class="px-6 py-4">{{ item.MEMO }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                list: [],
+                transactionKind: "",
+                accountNo: "",
+                accountName: "계좌 정보 로딩 중...",
+                wealth: 0
+            };
+        },
+        methods: {
+            // ✨ 금액을 원화 단위로 포맷하는 헬퍼 함수
+            formatWealth: function(amount) {
+                if (amount === null || amount === undefined) return '0원';
+                return new Intl.NumberFormat('ko-KR').format(amount) + '원';
+            },
+            // ✨ 날짜를 YYYY-MM-DD 형식으로 포맷하는 헬퍼 함수
+            formatDate: function(date) {
+                if (!date) return '';
+                const d = new Date(date);
+                const year = d.getFullYear();
+                const month = (d.getMonth() + 1).toString().padStart(2, '0');
+                const day = d.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            },
+            // 계좌 내역을 조회하는 함수
+            fnAccountView: function () {
+                let self = this;
+                // URL에서 accountNo 파라미터를 가져옵니다.
+                const urlParams = new URLSearchParams(window.location.search);
+                const accountNo = urlParams.get('accountNo');
+                self.accountNo = accountNo;
+
+                // API 호출 시 보낼 파라미터
+                let param = {
+                    accountNo: accountNo,
+                    transactionKind: self.transactionKind
+                };
+
+                $.ajax({
+                    url: "http://localhost:3009/account/view",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+                        self.list = data.transactionList;
+                        self.accountName = data.accountName;
+                        self.wealth = data.wealth;
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error fetching account view data:", error);
+                        // 에러 발생 시 사용자에게 알림
+                        self.accountName = "정보를 불러올 수 없습니다.";
+                        self.wealth = 0;
+                    }
+                });
+            }
+        },
+        mounted() {
+            // 페이지가 로드될 때 계좌 내역을 불러옵니다.
+            let self = this;
+            self.fnAccountView();
+        }
+    });
+
+    app.mount('#app');
+</script>
