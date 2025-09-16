@@ -6,60 +6,66 @@ const path = require('path');
 const app = express();
 app.use(cors());
 
-// ejs 설정
+// EJS settings
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '.'));
 
-const config = {
+const dbConfig = {
     user: 'SYSTEM',
     password: 'test1234',
     connectString: 'localhost:1521/xe'
 };
 
-// Oracle 데이터베이스와 연결을 유지하기 위한 전역 변수
-let connection;
+// 16자리 고유 ID를 생성하는 함수
+// 타임스탬프와 난수를 결합하여 고유성을 확보합니다.
+const generate16CharId = () => {
+    const timestampPart = Date.now().toString(36).slice(-8); // 최근 8자리
+    const randomPart = Math.random().toString(36).substring(2, 10); // 8자리 난수
+    return timestampPart + randomPart;
+};
 
-// 데이터베이스 연결 설정
+// Initialize connection pool
 async function initializeDatabase() {
     try {
-        // 서버 시작 시 단 하나의 연결만 생성
-        connection = await oracledb.getConnection(config);
-        console.log('Successfully connected to Oracle database');
+        await oracledb.createPool(dbConfig);
+        console.log('Connection pool created successfully.');
     } catch (err) {
-        console.error('Error connecting to Oracle database', err);
+        console.error('Error creating connection pool', err);
     }
 }
 
-// 애플리케이션 시작 시 연결 초기화
+// Initialize the database connection pool on application start
 initializeDatabase();
 
-// 회원가입 API (GET 메서드 - 보안에 취약함)
+// Join API (GET method - vulnerable)
 app.get('/join', async (req, res) => {
+    let connection;
     try {
-        const { 
+        connection = await oracledb.getConnection();
+        const {
             client_id,
             client_password,
             client_name,
             client_status,
             client_addr,
             client_phone_number,
-            client_email 
+            client_email
         } = req.query;
 
         if (!client_id || !client_password || !client_status || !client_name || !client_addr || !client_phone_number) {
-            return res.status(400).json({ success: false, message: '필수 정보가 누락되었습니다.' });
+            return res.status(400).json({ success: false, message: 'Required information is missing.' });
         }
 
-        // 1. 아이디 중복 확인
+        // 1. Check for duplicate ID
         const idCheckSql = `SELECT COUNT(*) FROM TBL_CLIENT WHERE CLIENT_ID = :client_id`;
         const result = await connection.execute(idCheckSql, [client_id]);
         const idCount = result.rows[0][0];
 
         if (idCount > 0) {
-            return res.status(409).json({ success: false, message: '이미 존재하는 아이디입니다.' });
+            return res.status(409).json({ success: false, message: 'This ID already exists.' });
         }
-        
-        // 2. 새로운 고객 정보 삽입 (경고: 비밀번호가 평문으로 저장됩니다!)
+
+        // 2. Insert new client information (Warning: Plaintext password)
         const insertSql = `
             INSERT INTO TBL_CLIENT (
                 CLIENT_NO,
@@ -84,7 +90,6 @@ app.get('/join', async (req, res) => {
             )
         `;
 
-        // email 값이 없을 경우 명시적으로 null로 설정
         const emailToInsert = client_email || null;
 
         await connection.execute(insertSql, {
@@ -97,26 +102,36 @@ app.get('/join', async (req, res) => {
             client_addr: client_addr
         }, { autoCommit: true });
 
-        res.status(200).json({ success: true, message: '회원가입이 완료되었습니다.' });
+        res.status(200).json({ success: true, message: 'Registration completed.' });
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+        res.status(500).json({ success: false, message: 'A server error occurred.' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
+        }
     }
 });
 
-// 로그인 API (GET 메서드 - 보안에 취약함)
+// Login API (GET method - vulnerable)
 app.get('/login', async (req, res) => {
+    let connection;
     try {
+        connection = await oracledb.getConnection();
         const { client_id, client_password } = req.query;
 
         if (!client_id || !client_password) {
-            return res.status(400).json({ success: false, message: '아이디와 비밀번호를 입력해주세요.' });
+            return res.status(400).json({ success: false, message: 'Please enter your ID and password.' });
         }
 
-        // 1. 아이디와 비밀번호가 일치하는 사용자 조회 (경고: 평문 비밀번호 비교)
+        // 1. Check for matching ID and password (Warning: Plaintext password comparison)
         const sql = `
-            SELECT 
+            SELECT
                 CLIENT_NO,
                 CLIENT_ID,
                 CLIENT_NAME,
@@ -124,38 +139,47 @@ app.get('/login', async (req, res) => {
             FROM TBL_CLIENT
             WHERE CLIENT_ID = :client_id AND CLIENT_PASSWORD = :client_password
         `;
-        
-        const result = await connection.execute(sql, { 
+
+        const result = await connection.execute(sql, {
             client_id: client_id,
             client_password: client_password
         });
-        
+
         if (result.rows.length === 1) {
-            // 로그인 성공
+            // Login successful
             const columnNames = result.metaData.map(col => col.name);
             const user = {};
             columnNames.forEach((colName, index) => {
                 user[colName] = result.rows[0][index];
             });
 
-            return res.status(200).json({ success: true, message: '로그인 성공!', user_info: user });
+            return res.status(200).json({ success: true, message: 'Login successful!', user_info: user });
         } else {
-            // 로그인 실패
-            return res.status(401).json({ success: false, message: '아이디 또는 비밀번호가 올바르지 않습니다.' });
+            // Login failed
+            return res.status(401).json({ success: false, message: 'Incorrect ID or password.' });
         }
-
     } catch (err) {
         console.error(err);
-        res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+        res.status(500).json({ success: false, message: 'A server error occurred.' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
+        }
     }
 });
 
-// 사용자의 이름 조회 API
+// User info API
 app.get('/user-info', async (req, res) => {
+    let connection;
     try {
+        connection = await oracledb.getConnection();
         const { client_id } = req.query;
         if (!client_id) {
-            return res.status(400).json({ success: false, message: '클라이언트 ID가 필요합니다.' });
+            return res.status(400).json({ success: false, message: 'Client ID is required.' });
         }
 
         const sql = `SELECT CLIENT_NAME FROM TBL_CLIENT WHERE CLIENT_ID = :client_id`;
@@ -165,38 +189,48 @@ app.get('/user-info', async (req, res) => {
             const userName = result.rows[0][0];
             return res.status(200).json({ success: true, userName: userName });
         } else {
-            return res.status(404).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
+            return res.status(404).json({ success: false, message: 'User not found.' });
         }
     } catch (err) {
         console.error(err);
-        res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+        res.status(500).json({ success: false, message: 'A server error occurred.' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
+        }
     }
 });
 
-// 계좌 목록 조회 API
+// Account list API
 app.get('/account/list', async (req, res) => {
+    let connection;
     try {
+        connection = await oracledb.getConnection();
         const { client_id, accountKind } = req.query;
         if (!client_id) {
-            return res.status(400).json({ success: false, message: '클라이언트 ID가 누락되었습니다.' });
+            return res.status(400).json({ success: false, message: 'Client ID is missing.' });
         }
 
-        // 1. client_id로 CLIENT_NO를 조회합니다.
+        // 1. Retrieve CLIENT_NO using client_id
         const clientSql = `SELECT CLIENT_NO FROM TBL_CLIENT WHERE CLIENT_ID = :client_id`;
         const clientResult = await connection.execute(clientSql, [client_id]);
         if (clientResult.rows.length === 0) {
-            return res.status(404).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
+            return res.status(404).json({ success: false, message: 'User not found.' });
         }
         const clientNo = clientResult.rows[0][0];
 
-        // 2. 조건에 맞는 계좌 목록을 조회하는 SQL을 동적으로 생성합니다.
+        // 2. Dynamically create SQL to retrieve account list based on the condition
         let accountSql = `
-            SELECT 
-                ACCOUNT_NO, 
-                ACCOUNT_NAME, 
-                WEALTH, 
-                ACCOUNT_KIND, 
-                LAST_TRANSACTION_DATE, 
+            SELECT
+                ACCOUNT_NO,
+                ACCOUNT_NAME,
+                WEALTH,
+                ACCOUNT_KIND,
+                LAST_TRANSACTION_DATE,
                 CREATE_DATE
             FROM TBL_ACCOUNT
             WHERE CLIENT_NO = :clientNo
@@ -210,7 +244,7 @@ app.get('/account/list', async (req, res) => {
 
         const accountResult = await connection.execute(accountSql, params);
 
-        // 결과의 열 이름을 가져와서 객체 배열로 변환합니다.
+        // Convert the result to an array of objects
         const columnNames = accountResult.metaData.map(col => col.name);
         const accountList = accountResult.rows.map(row => {
             const obj = {};
@@ -224,61 +258,114 @@ app.get('/account/list', async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+        res.status(500).json({ success: false, message: 'A server error occurred.' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
+        }
     }
 });
 
-// ✨ 계좌 상세 정보 및 거래 내역 조회 API
+// Account details and transaction history API
 app.get('/account/view', async (req, res) => {
+    let connection;
     try {
+        connection = await oracledb.getConnection();
         const { accountNo, transactionKind } = req.query;
 
         if (!accountNo) {
-            return res.status(400).json({ success: false, message: '계좌번호가 누락되었습니다.' });
+            return res.status(400).json({ success: false, message: 'Account number is missing.' });
         }
 
-        // 1. TBL_ACCOUNT 테이블에서 계좌의 이름과 잔액을 조회합니다.
+        // 1. Retrieve account name and wealth from TBL_ACCOUNT
         const accountSql = `
             SELECT ACCOUNT_NAME, WEALTH
             FROM TBL_ACCOUNT
             WHERE ACCOUNT_NO = :accountNo
         `;
         const accountResult = await connection.execute(accountSql, [accountNo]);
-        
+
         if (accountResult.rows.length === 0) {
-            return res.status(404).json({ success: false, message: '계좌를 찾을 수 없습니다.' });
+            return res.status(404).json({ success: false, message: 'Account not found.' });
         }
 
         const accountName = accountResult.rows[0][0];
         const wealth = accountResult.rows[0][1];
 
-        // 2. TBL_TRANSACTION 테이블에서 거래 내역을 조회합니다.
-        let transactionSql = `
-            SELECT
-                TRANSACTION_DATE,
-                TRANSACTION_NO,
-                TRANSACTION_KIND,
-                FROM_ACCOUNT,
-                TO_ACCOUNT,
-                AMOUNT,
-                MEMO
-            FROM TBL_TRANSACTION
-            WHERE FROM_ACCOUNT = :accountNo OR TO_ACCOUNT = :accountNo
-        `;
-        const params = [accountNo, accountNo];
+        // 2. Dynamically retrieve transaction history from TBL_TRANSACTION
+        let transactionSql;
+        let params;
 
-        // 거래 종류 필터가 있는 경우 WHERE 절에 추가합니다.
-        if (transactionKind) {
-            transactionSql += ` AND TRANSACTION_KIND = :transactionKind`;
-            params.push(transactionKind);
+        // Construct SQL query and bind variables based on transaction type
+        if (transactionKind === '입금') {
+            transactionSql = `
+                SELECT
+                    TRANSACTION_DATE,
+                    TRANSACTION_NO,
+                    TRANSACTION_KIND,
+                    FROM_ACCOUNT,
+                    TO_ACCOUNT,
+                    AMOUNT,
+                    MEMO
+                FROM TBL_TRANSACTION
+                WHERE TO_ACCOUNT = :accountNo AND TRANSACTION_KIND = '입금'
+                ORDER BY TRANSACTION_DATE DESC
+            `;
+            params = [accountNo];
+        } else if (transactionKind === '출금') {
+            transactionSql = `
+                SELECT
+                    TRANSACTION_DATE,
+                    TRANSACTION_NO,
+                    TRANSACTION_KIND,
+                    FROM_ACCOUNT,
+                    TO_ACCOUNT,
+                    AMOUNT,
+                    MEMO
+                FROM TBL_TRANSACTION
+                WHERE FROM_ACCOUNT = :accountNo AND TRANSACTION_KIND = '출금'
+                ORDER BY TRANSACTION_DATE DESC
+            `;
+            params = [accountNo];
+        } else if (transactionKind === '이체') {
+            transactionSql = `
+                SELECT
+                    TRANSACTION_DATE,
+                    TRANSACTION_NO,
+                    TRANSACTION_KIND,
+                    FROM_ACCOUNT,
+                    TO_ACCOUNT,
+                    AMOUNT,
+                    MEMO
+                FROM TBL_TRANSACTION
+                WHERE (FROM_ACCOUNT = :accountNo OR TO_ACCOUNT = :accountNo) AND TRANSACTION_KIND = '이체'
+                ORDER BY TRANSACTION_DATE DESC
+            `;
+            params = [accountNo, accountNo];
+        } else { // '전체' (All)
+            transactionSql = `
+                SELECT
+                    TRANSACTION_DATE,
+                    TRANSACTION_NO,
+                    TRANSACTION_KIND,
+                    FROM_ACCOUNT,
+                    TO_ACCOUNT,
+                    AMOUNT,
+                    MEMO
+                FROM TBL_TRANSACTION
+                WHERE FROM_ACCOUNT = :accountNo OR TO_ACCOUNT = :accountNo
+                ORDER BY TRANSACTION_DATE DESC
+            `;
+            params = [accountNo, accountNo];
         }
-
-        // 최신 거래 내역이 먼저 보이도록 날짜 기준으로 정렬합니다.
-        transactionSql += ` ORDER BY TRANSACTION_DATE DESC`;
 
         const transactionResult = await connection.execute(transactionSql, params);
 
-        // 결과의 열 이름을 가져와서 객체 배열로 변환합니다.
+        // Convert the result to an array of objects
         const columnNames = transactionResult.metaData.map(col => col.name);
         const transactionList = transactionResult.rows.map(row => {
             const obj = {};
@@ -288,7 +375,7 @@ app.get('/account/view', async (req, res) => {
             return obj;
         });
 
-        // 클라이언트에 응답합니다.
+        // Respond to the client
         res.status(200).json({
             success: true,
             accountName: accountName,
@@ -298,11 +385,309 @@ app.get('/account/view', async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+        res.status(500).json({ success: false, message: 'A server error occurred.' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
+        }
     }
 });
 
-// 서버 시작
+// Deposit/Withdrawal API (GET method - vulnerable)
+app.get('/deposit/self', async (req, res) => {
+    let connection;
+    try {
+        connection = await oracledb.getConnection();
+        const { accountNo, depositKind, amount, memo } = req.query;
+
+        if (!accountNo || !depositKind || !amount) {
+            return res.status(400).json({ success: false, message: 'Required information is missing.' });
+        }
+
+        const numericAmount = parseInt(amount, 10);
+        if (isNaN(numericAmount) || numericAmount <= 0) {
+            return res.status(400).json({ success: false, message: 'Please enter a valid amount.' });
+        }
+
+        // 1. Check account balance and update wealth in a single transaction
+        let updateSql;
+        let transactionKind;
+        let fromAccount = null;
+        let toAccount = null;
+        let message;
+
+        if (depositKind === '입금') {
+            updateSql = `UPDATE TBL_ACCOUNT SET WEALTH = WEALTH + :amount, LAST_TRANSACTION_DATE = SYSDATE WHERE ACCOUNT_NO = :accountNo`;
+            transactionKind = '입금';
+            toAccount = accountNo;
+            message = `${numericAmount.toLocaleString()} won deposited successfully.`;
+        } else if (depositKind === '출금') {
+            const wealthSql = `SELECT WEALTH FROM TBL_ACCOUNT WHERE ACCOUNT_NO = :accountNo FOR UPDATE`;
+            const wealthResult = await connection.execute(wealthSql, [accountNo]);
+
+            if (wealthResult.rows.length === 0) {
+                return res.status(404).json({ success: false, message: 'Account not found.' });
+            }
+
+            const currentWealth = wealthResult.rows[0][0];
+
+            if (currentWealth < numericAmount) {
+                return res.json({ success: false, message: 'Insufficient balance.' });
+            }
+            updateSql = `UPDATE TBL_ACCOUNT SET WEALTH = WEALTH - :amount, LAST_TRANSACTION_DATE = SYSDATE WHERE ACCOUNT_NO = :accountNo`;
+            transactionKind = '출금';
+            fromAccount = accountNo;
+            message = `${numericAmount.toLocaleString()} won withdrawn successfully.`;
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid transaction type.' });
+        }
+
+        // Execute both update and insert in a single transaction
+        await connection.execute(updateSql, {
+            amount: numericAmount,
+            accountNo: accountNo
+        }, { autoCommit: false });
+
+        const newTransactionNo = generate16CharId();
+        const insertTransactionSql = `
+            INSERT INTO TBL_TRANSACTION (
+                TRANSACTION_NO,
+                TRANSACTION_KIND,
+                TRANSACTION_DATE,
+                FROM_ACCOUNT,
+                TO_ACCOUNT,
+                AMOUNT,
+                MEMO
+            ) VALUES (
+                :transactionNo,
+                :transactionKind,
+                SYSDATE,
+                :fromAccount,
+                :toAccount,
+                :amount,
+                :memo
+            )
+        `;
+
+        await connection.execute(insertTransactionSql, {
+            transactionNo: newTransactionNo,
+            transactionKind: transactionKind,
+            fromAccount: fromAccount,
+            toAccount: toAccount,
+            amount: numericAmount,
+            memo: memo || null,
+        }, { autoCommit: false });
+
+        await connection.commit();
+
+        res.status(200).json({ success: true, message: message });
+
+    } catch (err) {
+        console.error('Error during transaction:', err);
+        if (connection) {
+            try {
+                await connection.rollback();
+            } catch (rollbackErr) {
+                console.error('Error during rollback:', rollbackErr);
+            }
+        }
+        res.status(500).json({ success: false, message: 'An error occurred during the transaction. Please try again.' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    }
+});
+
+// Deposit/Transfer API
+app.get('/deposit/transfer', async (req, res) => {
+    let connection;
+    try {
+        connection = await oracledb.getConnection();
+        const { accountNo, toAccount, amount, memo } = req.query;
+
+        if (!accountNo || !toAccount || !amount) {
+            return res.status(400).json({ success: false, message: 'Required information is missing.' });
+        }
+
+        const numericAmount = parseInt(amount, 10);
+        if (isNaN(numericAmount) || numericAmount <= 0) {
+            return res.status(400).json({ success: false, message: 'Please enter a valid amount.' });
+        }
+
+        // 1. Get the current wealth of the source account and lock the row for the transaction
+        const fromWealthSql = `SELECT WEALTH FROM TBL_ACCOUNT WHERE ACCOUNT_NO = :accountNo FOR UPDATE`;
+        const fromWealthResult = await connection.execute(fromWealthSql, [accountNo]);
+
+        if (fromWealthResult.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Source account not found.' });
+        }
+
+        const fromWealth = fromWealthResult.rows[0][0];
+
+        if (fromWealth < numericAmount) {
+            return res.status(400).json({ success: false, message: 'Insufficient balance in the source account.' });
+        }
+
+        // 2. Check if the destination account exists
+        const toAccountCheckSql = `SELECT ACCOUNT_NO FROM TBL_ACCOUNT WHERE ACCOUNT_NO = :toAccount`;
+        const toAccountCheckResult = await connection.execute(toAccountCheckSql, [toAccount]);
+
+        if (toAccountCheckResult.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Destination account not found.' });
+        }
+
+        // 3. Update wealth for the source account (withdrawal)
+        const updateFromSql = `UPDATE TBL_ACCOUNT SET WEALTH = WEALTH - :amount, LAST_TRANSACTION_DATE = SYSDATE WHERE ACCOUNT_NO = :accountNo`;
+        await connection.execute(updateFromSql, {
+            amount: numericAmount,
+            accountNo: accountNo
+        }, { autoCommit: false });
+
+        // 4. Update wealth for the destination account (deposit)
+        const updateToSql = `UPDATE TBL_ACCOUNT SET WEALTH = WEALTH + :amount, LAST_TRANSACTION_DATE = SYSDATE WHERE ACCOUNT_NO = :toAccount`;
+        await connection.execute(updateToSql, {
+            amount: numericAmount,
+            toAccount: toAccount
+        }, { autoCommit: false });
+
+        // 5. Insert transaction records for both accounts
+        const transactionNo = generate16CharId();
+        const insertTransactionSql = `
+            INSERT INTO TBL_TRANSACTION (
+                TRANSACTION_NO,
+                TRANSACTION_KIND,
+                TRANSACTION_DATE,
+                FROM_ACCOUNT,
+                TO_ACCOUNT,
+                AMOUNT,
+                MEMO
+            ) VALUES (
+                :transactionNo,
+                :transactionKind,
+                SYSDATE,
+                :fromAccount,
+                :toAccount,
+                :amount,
+                :memo
+            )
+        `;
+
+        await connection.execute(insertTransactionSql, {
+            transactionNo: transactionNo,
+            transactionKind: '이체',
+            fromAccount: accountNo,
+            toAccount: toAccount,
+            amount: numericAmount,
+            memo: memo || null
+        }, { autoCommit: false });
+
+        // 6. Commit the transaction
+        await connection.commit();
+
+        res.status(200).json({ success: true, message: 'Transfer completed successfully.' });
+
+    } catch (err) {
+        console.error('Error during transfer:', err);
+        if (connection) {
+            try {
+                await connection.rollback();
+            } catch (rollbackErr) {
+                console.error('Error during rollback:', rollbackErr);
+            }
+        }
+        res.status(500).json({ success: false, message: 'An error occurred during the transfer. Please try again.' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    }
+});
+
+// 새로운 계좌 추가 API
+// 클라이언트 ID를 통해 계좌 소유자를 확인하고, 새로운 계좌를 추가합니다.
+app.get('/account/add', async (req, res) => {
+    let connection;
+    try {
+        connection = await oracledb.getConnection();
+        const { client_id, account_name, wealth } = req.query;
+
+        if (!client_id || !account_name || !wealth) {
+            return res.status(400).json({ success: false, message: 'Required information is missing.' });
+        }
+
+        // 1. client_id를 사용하여 CLIENT_NO를 조회
+        const clientSql = `SELECT CLIENT_NO FROM TBL_CLIENT WHERE CLIENT_ID = :client_id`;
+        const clientResult = await connection.execute(clientSql, [client_id]);
+
+        if (clientResult.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Client not found.' });
+        }
+
+        const clientNo = clientResult.rows[0][0];
+
+        // 2. 새로운 계좌 정보를 TBL_ACCOUNT에 추가
+        const insertSql = `
+            INSERT INTO TBL_ACCOUNT (
+                CLIENT_NO,
+                ACCOUNT_NO,
+                ACCOUNT_NAME,
+                WEALTH,
+                ACCOUNT_KIND,
+                ACCOUNT_STATUS,
+                LAST_TRANSACTION_DATE,
+                CREATE_DATE
+            ) VALUES (
+                :clientNo,
+                :accountNo,
+                :account_name,
+                :wealth,
+                '예금',
+                'A',
+                SYSDATE,
+                SYSDATE
+            )
+        `;
+
+        const accountNo = generate16CharId();
+        const numericWealth = parseInt(wealth, 10);
+
+        await connection.execute(insertSql, {
+            clientNo: clientNo,
+            accountNo: accountNo,
+            account_name: account_name,
+            wealth: numericWealth,
+        }, { autoCommit: true });
+
+        res.status(200).json({ success: true, message: 'Account added successfully.', account_no: accountNo });
+
+    } catch (err) {
+        console.error('Error adding account:', err);
+        res.status(500).json({ success: false, message: 'A server error occurred.' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    }
+});
+
+// Start the server
 const PORT = 3009;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

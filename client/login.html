@@ -92,7 +92,6 @@
             background-color: #5a6268;
         }
 
-        /* 고객님께서 추가하신 스타일 */
         .message-box {
             margin-top: 1.5rem;
             padding: 12px;
@@ -100,13 +99,11 @@
             font-weight: 600;
         }
 
-        /* 고객님께서 추가하신 스타일 */
         .message-success {
             background-color: #e6f7e9;
             color: #1e7145;
         }
 
-        /* 고객님께서 추가하신 스타일 */
         .message-error {
             background-color: #ffe8e8;
             color: #c90000;
@@ -118,7 +115,6 @@
     <div id="app">
         <h1>로그인</h1>
         <div class="input-group">
-            <!-- 변경된 부분: v-model="userId"로 변경 -->
             <label>아이디</label>
             <input type="text" v-model="userId" placeholder="아이디를 입력하세요">
         </div>
@@ -129,8 +125,9 @@
         <div class="btn-group">
             <button class="btn-login" @click="fnLogin">로그인</button>
             <button class="btn-join" @click="fnJoin">회원가입</button>
+            <button class="btn-main" @click="fnMain"
+                style="background-color: #5cb85c; color: white; flex: 1;">메인으로</button>
         </div>
-        <!-- 고객님께서 추가하신 HTML 구조 -->
         <div v-if="message" class="message-box" :class="messageClass">
             {{ message }}
         </div>
@@ -142,28 +139,24 @@
     const app = Vue.createApp({
         data() {
             return {
-                // 변경된 부분: id를 userId로 변경
                 userId: "",
                 pwd: "",
-                message: "", // 로그인 결과 메시지
-                messageClass: "" // 메시지 스타일 클래스
+                message: "", 
+                messageClass: "" 
             };
         },
         methods: {
             fnLogin: function () {
                 let self = this;
-                // 변경된 부분: 아이디/비밀번호 미입력 시 유효성 검사 추가 (userId로 변수명 변경)
                 if (!self.userId || !self.pwd) {
                     self.message = "아이디와 비밀번호를 모두 입력해주세요.";
                     self.messageClass = "message-error";
                     return;
                 }
                 
-                // 메시지 초기화
                 self.message = "";
 
                 let param = {
-                    // 변경된 부분: id 대신 userId 사용
                     client_id: self.userId,
                     client_password: self.pwd
                 };
@@ -176,38 +169,34 @@
                     success: function (data) {
                         console.log("서버 응답:", data);
                         if (data.success) {
-                            // 변경된 부분: 서버 응답의 user_info 사용
                             self.message = data.user_info.CLIENT_NAME + "님 환영합니다.";
                             self.messageClass = "message-success";
 
-                            // 고객님께서 추가하신 세션 저장 로직
                             sessionStorage.setItem("sessionId", data.user_info.CLIENT_ID);
-                            sessionStorage.setItem("clientName", data.user_info.CLIENT_NAME); // 이름 추가
+                            sessionStorage.setItem("clientName", data.user_info.CLIENT_NAME); 
                             sessionStorage.setItem("sessionStatus", data.user_info.CLIENT_STATUS);
 
-                            // 1초 후 페이지 이동
                             setTimeout(() => {
                                 location.href = "main.html";
                             }, 1000);
 
                         } else {
-                            // 로그인 실패
                             self.message = data.message;
                             self.messageClass = "message-error";
                         }
                     },
                     error: function (xhr, textStatus, errorThrown) {
-                        // 통신 오류
                         console.error("통신 오류:", textStatus, errorThrown);
-                        // 변경된 부분: 구체적인 에러 메시지로 수정
                         self.message = "아이디 혹은 패스워드를 다시 확인해주세요.";
                         self.messageClass = "message-error";
                     }
                 });
             },
             fnJoin: function () {
-                // 회원가입 페이지로 이동하는 로직
                 location.href = "join.html";
+            },
+            fnMain: function() {
+                location.href = "main.html";
             }
         }
     });

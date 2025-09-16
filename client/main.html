@@ -72,13 +72,12 @@
         <hr class="my-6">
         
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <button @click="fnOpenChatbot" class="bg-yellow-400 text-gray-800 font-bold py-3 px-4 rounded-xl shadow-md hover:bg-yellow-500 transition-colors">✨AI 금융 상담</button>
             <button @click="fnAccountList" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">계좌조회</button>
-            <button @click="fnDepositAdd" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">예금입금</button>
-            <button @click="fnDepositWithdraw" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">예금출금</button>
-            <button @click="fnDepositTransfer" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">계좌이체</button>
-            <button @click="fnBorrow" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">대출</button>
+            <button @click="fnDepositAdd" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">예금 추가</button>
+            <button @click="fnDepositCancel" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">예금 해지</button>
+            <button @click="fnBorrow" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">대출 추가</button>
             <button @click="fnBorrowRepay" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">대출 상환</button>
+            <button @click="fnOpenChatbot" class="bg-yellow-400 text-gray-800 font-bold py-3 px-4 rounded-xl shadow-md hover:bg-yellow-500 transition-colors">✨AI 금융 상담</button>
         </div>
         
         <!-- AI 금융 상담 챗봇 UI -->
@@ -198,7 +197,9 @@
                     // 채팅창 스크롤을 최신 메시지로 이동
                     this.$nextTick(() => {
                         const chatContainer = this.$el.querySelector('.chat-container');
-                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                        if (chatContainer) {
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        }
                     });
                 }
             },
@@ -212,20 +213,18 @@
             fnAccountList: function(){
                 location.href="account-list.html";
             },
-            fnDepositAdd: function(){
-                location.href="deposit-add.html";
-            },
-            fnDepositWithdraw: function(){
-                location.href="deposit-withdraw.html";
-            },
-            fnDepositTransfer: function(){
-                location.href="deposit-transfer.html";
-            },
             fnBorrow: function(){
                 location.href="borrow.html";
             },
             fnBorrowRepay: function(){
                 location.href="borrow-repay.html";
+            },
+            // 예금 관련 추가 함수
+            fnDepositAdd: function() {
+                location.href="deposit-add.html";
+            },
+            fnDepositCancel: function() {
+                location.href="deposit-close.html";
             },
             // 로그아웃 기능
             fnLogout: function() {
@@ -234,8 +233,9 @@
                 sessionStorage.removeItem('sessionStatus');
                 this.isLoggedIn = false;
                 this.userName = '';
-                alert("로그아웃되었습니다."); // 알림 창 표시
-                location.href = "login.html"; // 로그인 페이지로 이동
+                // `alert` 대신 커스텀 UI를 사용해야 하지만, 현재 코드 구조를 유지합니다.
+                alert("로그아웃되었습니다.");
+                location.href = "login.html";
             }
         }, // methods
         mounted() {
@@ -253,7 +253,8 @@
                     success: function (data) {
                         if (data.success) {
                             self.isLoggedIn = true;
-                            self.userName = data.user_info.CLIENT_NAME;
+                            // 서버 응답의 'userName' 속성을 사용하도록 수정
+                            self.userName = data.userName; 
                         } else {
                             // 세션이 유효하지 않으면 로그아웃 처리
                             self.fnLogout();

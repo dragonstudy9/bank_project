@@ -31,10 +31,26 @@
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
-
 <body>
     <div id="app" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">계좌내역 조회</h1>
+        <!-- 제목과 버튼을 배치하는 컨테이너 -->
+        <div class="flex justify-between items-center mb-6 relative">
+            <button onclick="window.location.href='account-list.html'"
+                class="inline-block absolute left-0 px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-full shadow-lg hover:bg-gray-400 transition duration-300 ease-in-out">
+                이전
+            </button>
+            <h1 class="text-3xl font-bold text-gray-800 flex-grow text-center">계좌내역 조회</h1>
+            <div class="flex space-x-4">
+                <button @click="goToDepositTransfer"
+                    class="inline-block px-6 py-2 bg-indigo-600 text-white font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 ease-in-out">
+                    이체하기
+                </button>
+                <button @click="goToDepositSelf"
+                    class="inline-block px-6 py-2 bg-blue-600 text-white font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out">
+                    입출금 하기
+                </button>
+            </div>
+        </div>
         
         <!-- 계좌 기본 정보 섹션 -->
         <div class="bg-gray-100 p-6 rounded-xl mb-6 shadow-sm">
@@ -75,17 +91,16 @@
                         <td class="px-6 py-4">{{ formatDate(item.TRANSACTION_DATE) }}</td>
                         <td class="px-6 py-4">{{ item.TRANSACTION_NO }}</td>
                         <td class="px-6 py-4">{{ item.TRANSACTION_KIND }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">{{ item.FROM_ACCOUNT }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">{{ item.TO_ACCOUNT }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500" :class="{'font-bold text-gray-900': item.FROM_ACCOUNT === accountNo}">{{ item.FROM_ACCOUNT }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500" :class="{'font-bold text-gray-900': item.TO_ACCOUNT === accountNo}">{{ item.TO_ACCOUNT }}</td>
                         <td class="px-6 py-4">{{ formatWealth(item.AMOUNT) }}</td>
-                        <td class="px-6 py-4">{{ item.MEMO }}</td>
+                        <td class="px-6 py-4"><div v-html="item.MEMO"></div></td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </body>
-
 </html>
 
 <script>
@@ -100,12 +115,12 @@
             };
         },
         methods: {
-            // ✨ 금액을 원화 단위로 포맷하는 헬퍼 함수
+            // 금액을 원화 단위로 포맷하는 헬퍼 함수
             formatWealth: function(amount) {
                 if (amount === null || amount === undefined) return '0원';
                 return new Intl.NumberFormat('ko-KR').format(amount) + '원';
             },
-            // ✨ 날짜를 YYYY-MM-DD 형식으로 포맷하는 헬퍼 함수
+            // 날짜를 YYYY-MM-DD 형식으로 포맷하는 헬퍼 함수
             formatDate: function(date) {
                 if (!date) return '';
                 const d = new Date(date);
@@ -113,6 +128,16 @@
                 const month = (d.getMonth() + 1).toString().padStart(2, '0');
                 const day = d.getDate().toString().padStart(2, '0');
                 return `${year}-${month}-${day}`;
+            },
+            // 입출금 페이지로 이동하는 함수
+            goToDepositSelf: function() {
+                let self = this;
+                window.location.href = 'deposit-self.html?accountNo=' + self.accountNo;
+            },
+            // 이체 페이지로 이동하는 함수
+            goToDepositTransfer: function() {
+                let self = this;
+                window.location.href = 'deposit-transfer.html?accountNo=' + self.accountNo;
             },
             // 계좌 내역을 조회하는 함수
             fnAccountView: function () {

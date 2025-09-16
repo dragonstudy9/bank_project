@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>예금 입출금</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #editor {
+            height: 150px;
+            background-color: white;
+            border-radius: 0.5rem;
+        }
+
+        .ql-container {
+            border: 1px solid #d1d5db !important;
+            border-bottom-left-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+        }
+
+        .ql-toolbar {
+            border: 1px solid #d1d5db !important;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Quill CDN -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+</head>
+<body>
+    <div id="app" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-lg mx-auto">
+        <!-- 상단 헤더 -->
+        <div class="flex items-center justify-between mb-6">
+            <button @click="fnCancel" class="text-gray-600 hover:text-gray-800 transition duration-150">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <h1 class="text-3xl font-bold text-gray-800">입출금 하기</h1>
+            <div class="w-6"></div>
+        </div>
+
+        <div class="bg-gray-100 p-6 rounded-xl mb-6 shadow-sm text-center">
+            <div class="text-xl font-semibold text-gray-700 mb-2">대상 계좌</div>
+            <div class="text-3xl font-bold text-gray-900">{{ accountNo }}</div>
+        </div>
+
+        <div class="space-y-6">
+            <!-- 입출금 유형 선택 -->
+            <div class="flex items-center space-x-4 bg-gray-100 p-4 rounded-xl">
+                <p class="font-medium text-gray-700">입출금 유형:</p>
+                <div class="flex-grow flex justify-center space-x-8">
+                    <label class="inline-flex items-center">
+                        <input type="radio" value="입금" v-model="depositKind" class="form-radio text-blue-600">
+                        <span class="ml-2 text-gray-700 font-medium">입금</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" value="출금" v-model="depositKind" class="form-radio text-blue-600">
+                        <span class="ml-2 text-gray-700 font-medium">출금</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 금액 입력 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">원하시는 금액 :</label>
+                <input type="number" v-model="amount" class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="금액을 입력해주세요.">
+            </div>
+
+            <!-- 메모 작성 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">메모 작성:</label>
+                <div id="editor"></div>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="flex justify-end space-x-4">
+                <button @click="fnSelf" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out">
+                    실행
+                </button>
+                <button @click="fnCancel" class="px-6 py-2 border border-gray-300 text-gray-600 font-semibold rounded-full shadow-lg hover:bg-gray-100 transition duration-300 ease-in-out">
+                    취소
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                depositKind: "입금",
+                amount: null,
+                memo: "",
+                accountNo: ""
+            };
+        },
+        methods: {
+            fnSelf: function () {
+                let self = this;
+
+                // 입력 유효성 검사
+                if (!self.accountNo) {
+                    alert("계좌번호가 없습니다.");
+                    return;
+                }
+
+                if (!self.amount || self.amount <= 0) {
+                    alert("금액을 정확히 입력해주세요.");
+                    return;
+                }
+
+                let param = {
+                    accountNo: self.accountNo,
+                    depositKind: self.depositKind,
+                    amount: self.amount,
+                    memo: self.memo
+                };
+
+                $.ajax({
+                    url: "http://localhost:3009/deposit/self",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+                        if (data.success) {
+                            alert(data.message);
+                            location.href = `account-view.html?accountNo=${self.accountNo}`;
+                        } else {
+                            alert(data.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert("거래 중 오류가 발생했습니다. 다시 시도해주세요.");
+                        console.error("Error during transaction:", error);
+                    }
+                });
+            },
+            
+            fnCancel: function () {
+                history.back();
+            }
+        },
+        mounted() {
+            let self = this;
+            
+            // URL 파라미터에서 계좌번호 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            self.accountNo = urlParams.get('accountNo') || "";
+
+            // Quill 에디터 초기화
+            const quill = new Quill('#editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        ['bold', 'italic', 'underline'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        ['link', 'image'],
+                        ['clean'],
+                    ],
+                },
+            });
+
+            // 에디터 내용이 변경될 때마다 Vue 데이터를 업데이트
+            quill.on('text-change', function () {
+                self.memo = quill.root.innerHTML;
+            });
+        },
+    });
+
+    app.mount('#app');
+</script>
