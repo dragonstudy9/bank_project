@@ -4,92 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>원정은행 메인화면</title>
-    <!-- Tailwind CSS를 위한 CDN 링크. 모든 스타일을 여기서 가져옵니다. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .chat-container {
             max-height: 400px;
             overflow-y: auto;
         }
+
         .message-bubble {
             max-width: 80%;
             border-radius: 1rem;
             padding: 0.75rem 1rem;
             margin-bottom: 0.5rem;
         }
+
         .user-message {
             background-color: #3B82F6;
             color: white;
             align-self: flex-end;
         }
+
         .ai-message {
             background-color: #E5E7EB;
             color: #1F2937;
             align-self: flex-start;
         }
+
         .loading-dots span {
             animation: blink 1s infinite;
         }
+
         .loading-dots span:nth-child(2) {
             animation-delay: 0.2s;
         }
+
         .loading-dots span:nth-child(3) {
             animation-delay: 0.4s;
         }
+
         @keyframes blink {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 1; }
+
+            0%,
+            100% {
+                opacity: 0.2;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
     </style>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
     <div id="app" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-2xl text-center">
-        <!-- 로그인 상태에 따라 다른 UI를 보여줌 -->
+        <div class="mb-8">
+            <h1
+                class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse drop-shadow-xl">
+                원정은행</h1>
+        </div>
+        <hr class="my-6">
         <div v-if="isLoggedIn">
-            <h1 class="text-3xl font-bold mb-4 text-blue-600">환영합니다, {{ userName }}님!</h1>
+            <h2 class="text-3xl font-bold mb-4 text-blue-600">환영합니다, {{ userName }}님!</h2>
         </div>
         <div v-else>
-            <h1 class="text-3xl font-bold mb-4 text-gray-800">로그인 또는 회원가입을 해주세요.</h1>
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">로그인 또는 회원가입을 해주세요.</h2>
         </div>
-        
-        <hr class="my-6">
 
-        <!-- 로그인 상태가 아닐 때만 '로그인'과 '회원가입' 버튼을 표시 -->
-        <div class="flex flex-wrap justify-center gap-4 mb-6">
-            <button id="login" v-if="!isLoggedIn" @click="fnLogin" class="bg-blue-500 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-blue-600 transition-colors">로그인</button>
-            <button id="join" v-if="!isLoggedIn" @click="fnJoin" class="bg-blue-500 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-blue-600 transition-colors">회원가입</button>
-            
-            <!-- 로그인 상태일 때만 '로그아웃' 버튼을 표시 -->
-            <button id="logout" v-if="isLoggedIn" @click="fnLogout" class="bg-red-500 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-red-600 transition-colors">로그아웃</button>
-        </div>
-        
         <hr class="my-6">
-        
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <button @click="fnAccountList" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">계좌조회</button>
-            <button @click="fnDepositAdd" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">예금 추가</button>
-            <button @click="fnDepositCancel" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">예금 해지</button>
-            <button @click="fnBorrow" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">대출 추가</button>
-            <button @click="fnBorrowRepay" class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">대출 상환</button>
-            <button @click="fnOpenChatbot" class="bg-yellow-400 text-gray-800 font-bold py-3 px-4 rounded-xl shadow-md hover:bg-yellow-500 transition-colors">✨AI 금융 상담</button>
+        <div class="flex flex-wrap justify-center gap-4 mb-6">
+            <button id="login" v-if="!isLoggedIn" @click="fnLogin"
+                class="bg-blue-500 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-blue-600 transition-colors">로그인</button>
+            <button id="join" v-if="!isLoggedIn" @click="fnJoin"
+                class="bg-blue-500 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-blue-600 transition-colors">회원가입</button>
+            <button id="user-info" v-if="isLoggedIn" @click="fnUserInfo"
+                class="bg-sky-500 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-sky-600 transition-colors">회원정보조회</button>
+            <button id="logout" v-if="isLoggedIn" @click="fnLogout"
+                class="bg-red-500 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-red-600 transition-colors">로그아웃</button>
         </div>
-        
-        <!-- AI 금융 상담 챗봇 UI -->
+
+        <hr class="my-6">
+        <div class="grid grid-cols-2 sm:grid-cols-2 gap-4">
+            <button @click="fnAccountList"
+                class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">계좌조회</button>
+            <button @click="fnDepositAdd"
+                class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">예금
+                추가</button>
+            <button @click="fnBorrow"
+                class="bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-gray-300 transition-colors">대출
+                추가</button>
+            <button @click="fnOpenChatbot"
+                class="bg-yellow-400 text-gray-800 font-bold py-3 px-4 rounded-xl shadow-md hover:bg-yellow-500 transition-colors">✨AI
+                금융 상담</button>
+        </div>
+
         <div v-if="showChatbot" class="mt-8 bg-gray-50 rounded-xl p-4 shadow-inner border border-gray-200">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-gray-700">AI 금융 상담 챗봇</h2>
                 <button @click="fnCloseChatbot" class="text-gray-500 hover:text-gray-700 font-bold">X</button>
             </div>
-            
+
             <div class="chat-container flex flex-col space-y-2 mb-4 p-2 bg-white rounded-lg shadow-sm">
-                <div v-for="message in chatHistory" :key="message.id" class="flex" :class="{'justify-end': message.isUser, 'justify-start': !message.isUser}">
-                    <div class="message-bubble" :class="{'user-message': message.isUser, 'ai-message': !message.isUser}">
+                <div v-for="message in chatHistory" :key="message.id" class="flex"
+                    :class="{'justify-end': message.isUser, 'justify-start': !message.isUser}">
+                    <div class="message-bubble"
+                        :class="{'user-message': message.isUser, 'ai-message': !message.isUser}">
                         {{ message.text }}
                     </div>
                 </div>
@@ -99,71 +126,85 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="flex items-center">
-                <input v-model="userMessage" @keyup.enter="sendMessage" type="text" placeholder="질문 내용을 입력하세요..." class="flex-grow rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button @click="sendMessage" :disabled="isLoading" class="ml-2 bg-blue-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-blue-600 transition-colors disabled:bg-gray-400">전송</button>
+                <input v-model="userMessage" @keyup.enter="sendMessage" type="text" placeholder="질문 내용을 입력하세요..."
+                    class="flex-grow rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button @click="sendMessage" :disabled="isLoading"
+                    class="ml-2 bg-blue-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-blue-600 transition-colors disabled:bg-gray-400">전송</button>
             </div>
         </div>
+
+        <!-- 커스텀 모달 창 (alert() 대체) -->
+        <div v-if="showModal"
+            class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+            <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm text-center">
+                <p class="text-lg font-semibold mb-4">{{ modalMessage }}</p>
+                <button @click="fnCloseModal"
+                    class="bg-blue-500 text-white font-bold py-2 px-6 rounded-full shadow-md hover:bg-blue-600 transition-colors">
+                    확인
+                </button>
+            </div>
+        </div>
+
     </div>
 </body>
-</html>
 
+</html>
 <script>
     const app = Vue.createApp({
         data() {
             return {
-                // 로그인 상태를 관리하는 변수 추가
                 isLoggedIn: false,
                 userName: '',
-                // ✨AI 챗봇 관련 변수 추가
                 showChatbot: false,
                 chatHistory: [],
                 userMessage: '',
                 isLoading: false,
+                showModal: false,
+                modalMessage: '',
             };
         },
         methods: {
-            // ✨AI 챗봇 관련 메서드
-            fnOpenChatbot: function() {
-                this.showChatbot = true;
-                // 초기 메시지 추가
-                if (this.chatHistory.length === 0) {
-                    this.chatHistory.push({
-                        id: Date.now(),
-                        text: '안녕하세요! 원정은행 AI 금융 상담 챗봇입니다. 무엇을 도와드릴까요?',
-                        isUser: false
-                    });
-                }
+            fnShowModal(message) {
+                this.modalMessage = message;
+                this.showModal = true;
             },
-            fnCloseChatbot: function() {
+            fnCloseModal() {
+                this.showModal = false;
+            },
+            fnOpenChatbot: function () {
+                this.fnShowModal("준비 중입니다. 챗봇을 언젠가 사용할 수 있습니다.");
+                // this.showChatbot = true;
+                // if (this.chatHistory.length === 0) {
+                //     this.chatHistory.push({
+                //         id: Date.now(),
+                //         text: '안녕하세요! 원정은행 AI 금융 상담 챗봇입니다. 무엇을 도와드릴까요?',
+                //         isUser: false
+                //     });
+                // }
+            },
+            fnCloseChatbot: function () {
                 this.showChatbot = false;
             },
             async sendMessage() {
                 if (!this.userMessage.trim() || this.isLoading) return;
-
                 const messageText = this.userMessage;
                 this.userMessage = '';
                 this.isLoading = true;
-
-                // 사용자 메시지를 채팅 기록에 추가
                 this.chatHistory.push({
                     id: Date.now(),
                     text: messageText,
                     isUser: true
                 });
-
                 try {
-                    // Gemini API 호출
                     const apiKey = "";
                     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                    
                     const payload = {
                         contents: [{
                             parts: [{ text: `사용자의 금융 관련 질문에 답변해줘. 질문: ${messageText}` }]
                         }]
                     };
-
                     const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: {
@@ -171,20 +212,16 @@
                         },
                         body: JSON.stringify(payload)
                     });
-
                     if (!response.ok) {
                         throw new Error(`API Error: ${response.statusText}`);
                     }
-
                     const result = await response.json();
                     const aiResponseText = result?.candidates?.[0]?.content?.parts?.[0]?.text || "죄송합니다. 답변을 생성하는 데 문제가 발생했습니다.";
-
                     this.chatHistory.push({
                         id: Date.now() + 1,
                         text: aiResponseText,
                         isUser: false
                     });
-
                 } catch (error) {
                     console.error("Error communicating with Gemini API:", error);
                     this.chatHistory.push({
@@ -194,7 +231,6 @@
                     });
                 } finally {
                     this.isLoading = false;
-                    // 채팅창 스크롤을 최신 메시지로 이동
                     this.$nextTick(() => {
                         const chatContainer = this.$el.querySelector('.chat-container');
                         if (chatContainer) {
@@ -203,71 +239,56 @@
                     });
                 }
             },
-            // 기존 페이지 이동 함수들
-            fnLogin: function(){
-                location.href="login.html";
+            fnLogin: function () {
+                location.href = "login.html";
             },
-            fnJoin: function(){
-                location.href="join.html";
+            fnJoin: function () {
+                location.href = "join.html";
             },
-            fnAccountList: function(){
-                location.href="account-list.html";
+            fnAccountList: function () {
+                location.href = "account-list.html";
             },
-            fnBorrow: function(){
-                location.href="borrow.html";
+            fnBorrow: function () {
+                location.href = "borrow.html";
             },
-            fnBorrowRepay: function(){
-                location.href="borrow-repay.html";
+            fnDepositAdd: function () {
+                location.href = "deposit-add.html";
             },
-            // 예금 관련 추가 함수
-            fnDepositAdd: function() {
-                location.href="deposit-add.html";
+            fnUserInfo: function () {
+                location.href = "info.html";
             },
-            fnDepositCancel: function() {
-                location.href="deposit-close.html";
-            },
-            // 로그아웃 기능
-            fnLogout: function() {
-                // 세션 스토리지에서 사용자 정보 삭제
+            fnLogout: function () {
                 sessionStorage.removeItem('sessionId');
                 sessionStorage.removeItem('sessionStatus');
                 this.isLoggedIn = false;
                 this.userName = '';
-                // `alert` 대신 커스텀 UI를 사용해야 하지만, 현재 코드 구조를 유지합니다.
-                alert("로그아웃되었습니다.");
-                location.href = "login.html";
+                this.fnShowModal("로그아웃되었습니다.");
+                // location.href = "login.html";
             }
-        }, // methods
+        },
         mounted() {
-            // 페이지가 로드될 때 세션 스토리지 확인
             const sessionId = sessionStorage.getItem('sessionId');
-            
             if (sessionId) {
-                // 로그인 상태인 경우, 서버에서 사용자 이름 가져오기
                 let self = this;
                 $.ajax({
-                    url: "http://localhost:3009/user-info", // 사용자 정보 API 엔드포인트
+                    url: "http://localhost:3009/user-info",
                     dataType: "json",
                     type: "GET",
                     data: { client_id: sessionId },
                     success: function (data) {
                         if (data.success) {
                             self.isLoggedIn = true;
-                            // 서버 응답의 'userName' 속성을 사용하도록 수정
-                            self.userName = data.userName; 
+                            self.userName = data.userName;
                         } else {
-                            // 세션이 유효하지 않으면 로그아웃 처리
                             self.fnLogout();
                         }
                     },
-                    error: function() {
-                        // 통신 오류 시 로그아웃 처리
+                    error: function () {
                         self.fnLogout();
                     }
                 });
             }
         }
     });
-
     app.mount('#app');
 </script>

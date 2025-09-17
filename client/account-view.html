@@ -59,7 +59,7 @@
         </div>
 
         <!-- 검색 및 필터링 -->
-        <div class="mb-4">
+        <div class="mb-4 flex items-center justify-between">
             <select v-model="transactionKind" @change="fnAccountView"
                 class="px-4 py-2 border rounded-full shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">:: 전체 ::</option>
@@ -67,6 +67,16 @@
                 <option value="출금">출금</option>
                 <option value="이체">이체</option>
             </select>
+            <div class="flex space-x-4">
+                <button v-if="accountKind === '예금'" @click="fnAccountClose(accountNo)"
+                    class="inline-block px-6 py-2 bg-red-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700 transition duration-300 ease-in-out">
+                    예금해지
+                </button>
+                <button v-if="accountKind === '대출'" 
+                    class="inline-block px-6 py-2 bg-purple-600 text-white font-semibold rounded-full shadow-lg hover:bg-purple-700 transition duration-300 ease-in-out">
+                    대출상환
+                </button>
+            </div>
         </div>
 
         <!-- 정보 출력 테이블 -->
@@ -111,7 +121,8 @@
                 transactionKind: "",
                 accountNo: "",
                 accountName: "계좌 정보 로딩 중...",
-                wealth: 0
+                wealth: 0,
+                accountKind: "" // 계좌 종류를 저장할 새로운 속성 추가
             };
         },
         methods: {
@@ -140,7 +151,7 @@
                 window.location.href = 'deposit-transfer.html?accountNo=' + self.accountNo;
             },
             // 계좌 내역을 조회하는 함수
-            fnAccountView: function () {
+            fnAccountView: function() {
                 let self = this;
                 // URL에서 accountNo 파라미터를 가져옵니다.
                 const urlParams = new URLSearchParams(window.location.search);
@@ -162,12 +173,37 @@
                         self.list = data.transactionList;
                         self.accountName = data.accountName;
                         self.wealth = data.wealth;
+                        self.accountKind = data.accountKind; // API 응답에서 계좌 종류를 가져와 저장
                     },
                     error: function(xhr, status, error) {
                         console.error("Error fetching account view data:", error);
                         // 에러 발생 시 사용자에게 알림
                         self.accountName = "정보를 불러올 수 없습니다.";
                         self.wealth = 0;
+                    }
+                });
+            },
+            //예금해지
+            fnAccountClose: function(accountNo){
+                let self = this;
+                let param = {
+                    accountNo: accountNo,
+                };
+                if(!confirm("정말 예금을 해지하시겠습니까?")){
+                    return;
+                }
+                $.ajax({
+                    url: "http://localhost:3009/account/deposit/delete",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+                        alert("예금이 해지 되었습니다.");
+                        window.location.href = 'account-list.html';
+                        
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error deleting account:", error);
                     }
                 });
             }

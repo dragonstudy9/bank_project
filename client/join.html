@@ -142,7 +142,7 @@
     <div id="app">
         <h1>회원가입</h1>
         <div class="input-group">
-            <label>아이디 : <input type="text" v-model="id"></label>
+            <label>아이디 : <input type="text" v-model="clientId"></label>
         </div>
         <div class="input-group">
             <label>비밀번호 : <input type="password" v-model="pwd"></label>
@@ -154,11 +154,11 @@
             <label>주소 : <input type="text" v-model="addr"></label>
         </div>
         <div class="input-group">
-            <label>휴대폰 번호 : <input type="text" v-model="phoneNumber"></label>
+            <label>휴대폰 번호 : <input type="tel" v-model="phoneNumber"></label>
         </div>
         <div class="input-group">
             <label>
-                이메일 : <input type="text" v-model="email" @input="emailValidate">
+                이메일 : <input type="email" v-model="email" @input="emailValidate">
             </label>
         </div>
         <div class="email-message" :class="{ 'valid': isEmailValid, 'invalid': email && !isEmailValid }">
@@ -185,7 +185,7 @@
     const app = Vue.createApp({
         data() {
             return {
-                id: "",
+                clientId: "",
                 pwd: "",
                 clientName: "",
                 clientStatus: "P",
@@ -200,7 +200,7 @@
         methods: {
             fnJoin: function () {
                 let self = this;
-                if (!self.id || !self.pwd || !self.clientName || !self.addr || !self.phoneNumber) {
+                if (!self.clientId || !self.pwd || !self.clientName || !self.addr || !self.phoneNumber) {
                     self.message = "모든 필수 정보를 입력해주세요.";
                     self.messageClass = "error-message";
                     return;
@@ -213,7 +213,7 @@
                 }
 
                 let param = {
-                    client_id: self.id,
+                    client_id: self.clientId,
                     client_password: self.pwd,
                     client_name: self.clientName,
                     client_status: self.clientStatus,
