@@ -215,6 +215,14 @@
             },
             fnEdit: function () {
                 let self = this;
+                
+                // 이메일 형식 유효성 검사
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(self.info.CLIENT_EMAIL)) {
+                    self.showMessage('이메일 형식 오류', '올바른 이메일 주소를 입력해주세요.', '확인');
+                    return;
+                }
+
                 let param = self.info;
                 
                 $.ajax({
@@ -223,10 +231,9 @@
                     type: "GET",
                     data: param,
                     success: function (data) {
-                        alert("수정되었습니다!");
-                        setTimeout(() => {
-                                location.href = "info.html";
-                        }, 1000);
+                        self.showMessage('수정 완료', '회원정보가 성공적으로 수정되었습니다.', '확인', () => {
+                            location.href = "info.html";
+                        });
                     },
                     error: function() {
                         // 오류 발생 시 메시지 박스 표시

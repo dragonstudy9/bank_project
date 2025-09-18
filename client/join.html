@@ -229,11 +229,8 @@
                     data: param,
                     success: function (data) {
                         if (data.success) {
-                            self.message = "회원가입이 완료되었습니다!";
-                            self.messageClass = "success-message";
-                            setTimeout(() => {
-                                location.href = "main.html";
-                            }, 1000);
+                            alert("회원가입이 완료되었습니다! 로그인하면 사용할 수 있습니다.");
+                            location.href = "main.html";
                         } else {
                             self.message = data.message;
                             self.messageClass = "error-message";

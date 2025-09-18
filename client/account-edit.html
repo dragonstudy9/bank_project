@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>계좌수정</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">계좌명 수정</h1>
+        <div class="mb-4">
+            <label for="account-name" class="block text-gray-700 text-sm font-semibold mb-2">새 계좌명</label>
+            <input type="text" id="account-name" v-model="info.ACCOUNT_NAME" class="w-full px-4 py-2 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
+        </div>
+        <div class="flex justify-center space-x-4">
+            <button @click="fnEdit" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out">
+                수정
+            </button>
+            <button @click="fnCancel" class="px-6 py-2 bg-gray-300 text-gray-800 font-semibold rounded-full shadow-lg hover:bg-gray-400 transition duration-300 ease-in-out">
+                취소
+            </button>
+        </div>
+        <!-- 메시지 박스를 위한 오버레이 -->
+        <div v-if="showMessage" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+            <div class="relative p-5 border w-96 shadow-lg rounded-md bg-white text-center">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">{{ messageTitle }}</h3>
+                <p class="text-gray-700 mb-6">{{ messageContent }}</p>
+                <button @click="closeMessage" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition duration-300 ease-in-out">확인</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                info: {},
+                isLoggedIn: false,
+                sessionId: null,
+                accountNo: "",
+                showMessage: false,
+                messageTitle: "",
+                messageContent: "",
+                messageCallback: null,
+                accountKind: ""
+            };
+        },
+        methods: {
+            // 커스텀 메시지 박스를 띄우는 함수
+            showMessageBox: function(title, content, callback) {
+                this.messageTitle = title;
+                this.messageContent = content;
+                this.showMessage = true;
+                this.messageCallback = callback;
+            },
+            // 메시지 박스를 닫는 함수
+            closeMessage: function() {
+                this.showMessage = false;
+                if (this.messageCallback) {
+                    this.messageCallback();
+                }
+            },
+            // 계좌 정보를 불러오는 함수
+            fnAccountInfo: function() {
+                let self = this;
+                const urlParams = new URLSearchParams(window.location.search);
+                const accountNo = urlParams.get('accountNo');
+                self.accountNo = accountNo;
+                let param = {
+                    accountNo: self.accountNo,
+                    accountKind: self.accountKind,
+                    client_id: self.sessionId
+                };
+
+                $.ajax({
+                    url: "http://localhost:3009/account/list",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function(data) {
+                        if (data.success && data.accountList && data.accountList.length > 0) {
+                            self.info = data.accountList[0];
+                        } else {
+                            self.showMessageBox('정보 로딩 실패', '계좌 정보를 불러오는 데 실패했습니다.', () => {
+                                location.href = "account-list.html";
+                            });
+                        }
+                    },
+                    error: function() {
+                        self.showMessageBox('오류 발생', '서버 통신 오류가 발생했습니다.', () => {
+                            location.href = "account-list.html";
+                        });
+                    }
+                });
+            },
+            // 계좌명 수정 함수
+            fnEdit: function() {
+                let self = this;
+                let param = {
+                    accountNo: self.accountNo,
+                    accountName: self.info.ACCOUNT_NAME
+                };
+                
+                $.ajax({
+                    url: "http://localhost:3009/account/update",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function(data) {
+                        if (data.success) {
+                            self.showMessageBox('수정 완료', '계좌명이 성공적으로 수정되었습니다.', () => {
+                                location.href = "account-view.html?accountNo=" + self.accountNo;
+                            });
+                        } else {
+                            self.showMessageBox('수정 실패', '계좌명 수정에 실패했습니다. 다시 시도해주세요.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        self.showMessageBox('오류 발생', '서버 통신 오류가 발생했습니다. 다시 시도해주세요.');
+                    }
+                });
+            },
+            // 취소 함수
+            fnCancel: function() {
+                location.href = "account-view.html?accountNo=" + this.accountNo;
+            }
+        },
+        mounted() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const accountNo = urlParams.get('accountNo');
+            const sessionId = sessionStorage.getItem('sessionId');
+            this.sessionId = sessionId;
+            if (accountNo) {
+                this.fnAccountInfo();
+            } else {
+                this.showMessageBox('계좌 정보 없음', '수정할 계좌 정보가 없습니다. 계좌 목록에서 다시 선택해주세요.', () => {
+                    location.href = "account-list.html";
+                });
+            }
+        }
+    });
+
+    app.mount('#app');
+</script>

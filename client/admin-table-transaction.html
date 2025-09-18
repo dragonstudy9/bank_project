@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>거래내역 관리</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        .app-width {
+            max-width: 90rem;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2D3748;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #4A5568;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div id="app" class="w-full app-width">
+        <div class="bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-700">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h1 class="text-3xl font-bold text-gray-100">거래내역 관리</h1>
+                <div class="flex gap-4 items-center">
+                    <button @click="fnGoAdminMain"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-all duration-200">관리자
+                        메인으로</button>
+                    <select v-model="transactionKind" @change="fnAccountView"
+                        class="bg-gray-700 text-gray-100 px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+                        <option value="">:: 전체 ::</option>
+                        <option value="입금">입금</option>
+                        <option value="출금">출금</option>
+                        <option value="이체">이체</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg shadow-md border border-gray-700">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-base font-bold uppercase tracking-wider text-gray-200">
+                                삭제</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-base font-bold uppercase tracking-wider text-gray-200">
+                                거래날짜</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-base font-bold uppercase tracking-wider text-gray-200">
+                                거래번호</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-base font-bold uppercase tracking-wider text-gray-200">
+                                거래종류</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-base font-bold uppercase tracking-wider text-gray-200">
+                                보낸이 계좌번호</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-base font-bold uppercase tracking-wider text-gray-200">
+                                받는이 계좌번호</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-base font-bold uppercase tracking-wider text-gray-200">
+                                거래량</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-base font-bold uppercase tracking-wider text-gray-200">
+                                메모</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700">
+                        <tr v-if="list.length === 0" class="bg-gray-800">
+                            <td colspan="8" class="px-6 py-4 text-center text-lg font-medium text-gray-400">거래내역이
+                                없습니다.</td>
+                        </tr>
+                        <tr v-else v-for="item in list" :key="item.TRANSACTION_NO"
+                            class="hover:bg-gray-700 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <button @click="fnRemove(item.TRANSACTION_NO)"
+                                    class="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded-lg shadow-md transition-all duration-200">삭제</button>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-300">{{
+                                formatDate(item.TRANSACTION_DATE) }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-lg font-medium text-blue-400">{{
+                                item.TRANSACTION_NO }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-lg font-medium text-gray-300">{{
+                                item.TRANSACTION_KIND }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-300">{{ item.FROM_ACCOUNT }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-lg text-gray-300">{{ item.TO_ACCOUNT }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-lg font-medium text-green-400">{{
+                                formatWealth(item.AMOUNT) }}</td>
+                            <td class="px-6 py-4 text-lg text-gray-400" v-html="item.MEMO"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 커스텀 모달 (알림 및 확인) -->
+        <div v-if="showModal"
+            class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-300">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 max-w-sm w-full">
+                <p class="text-gray-200 text-lg text-center mb-4">{{ modalMessage }}</p>
+                <div class="flex justify-center gap-2">
+                    <button v-if="isConfirming" @click="cancelAction"
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200">취소</button>
+                    <button @click="handleAction"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                // 변수 - (key : value)
+                list: [],
+                transactionKind: "",
+                accountNo: "",
+                accountName: "계좌 정보 로딩 중...",
+                wealth: 0,
+                accountKind: "",
+                showModal: false,
+                modalMessage: "",
+                isConfirming: false,
+                confirmAction: null
+            };
+        },
+        methods: {
+            // 계좌 내역을 조회하는 함수
+            fnAccountView: function() {
+                let self = this;
+
+                // API 호출 시 보낼 파라미터
+                let param = {
+                    transactionKind: self.transactionKind
+                };
+
+                $.ajax({
+                    url: "http://localhost:3009/admin/transaction/list",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function(data) {
+                        self.list = data.transactionList;
+                        self.accountName = data.accountName;
+                        self.wealth = data.wealth;
+                        self.accountKind = data.accountKind;
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error fetching account view data:", error);
+                        self.showAlert("정보를 불러올 수 없습니다.");
+                        self.accountName = "정보를 불러올 수 없습니다.";
+                        self.wealth = 0;
+                    }
+                });
+            },
+
+            // 금액을 원화 단위로 포맷하는 헬퍼 함수
+            formatWealth: function(amount) {
+                if (amount === null || amount === undefined) return '0원';
+                return new Intl.NumberFormat('ko-KR').format(amount) + '원';
+            },
+            // 날짜를 YYYY-MM-DD 형식으로 포맷하는 헬퍼 함수
+            formatDate: function(date) {
+                if (!date) return '';
+                const d = new Date(date);
+                const year = d.getFullYear();
+                const month = (d.getMonth() + 1).toString().padStart(2, '0');
+                const day = d.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            },
+            fnGoAdminMain: function(transactionNo) {
+                location.href = "admin-main.html";
+            },
+            fnRemove(transactionNo) {
+                let self = this;
+                this.showConfirmation("정말 삭제하시겠습니까?", () => {
+                    let param = {
+                        transactionNo: transactionNo,
+                    };
+                    $.ajax({
+                        url: "http://localhost:3009/admin/transaction/delete",
+                        dataType: "json",
+                        type: "GET",
+                        data: param,
+                        success: function(data) {
+                            if (data.result == "success") {
+                                self.showAlert("삭제되었습니다!");
+                                self.fnAccountView();
+                            }
+                        },
+                        error: function() {
+                            self.showAlert("삭제 중 오류가 발생했습니다.");
+                        }
+                    });
+                });
+            },
+            showAlert: function(message) {
+                this.modalMessage = message;
+                this.isConfirming = false;
+                this.showModal = true;
+                this.confirmAction = null;
+            },
+            showConfirmation: function(message, onConfirm) {
+                this.modalMessage = message;
+                this.isConfirming = true;
+                this.showModal = true;
+                this.confirmAction = onConfirm;
+            },
+            handleAction: function() {
+                if (this.isConfirming && this.confirmAction) {
+                    this.confirmAction();
+                }
+                this.showModal = false;
+            },
+            cancelAction: function() {
+                this.showModal = false;
+            }
+        }, // methods
+        mounted() {
+            // 처음 시작할 때 실행되는 부분
+            let self = this;
+            self.fnAccountView();
+        }
+    });
+
+    app.mount('#app');
+</script>

@@ -73,9 +73,10 @@
                     type: "GET",
                     data: param,
                     success: function (data) {
-                        setTimeout(() => {
+                        alert("새로운 예금이 추가되었습니다. 감사합니다!");
+                        //setTimeout(() => {
                             location.href = "account-list.html";
-                        }, 1000);
+                        //}, 1000);
                     }
                 });
             },

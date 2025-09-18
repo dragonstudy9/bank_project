@@ -28,7 +28,7 @@
  async function initializeDatabase() {
    try {
      await oracledb.createPool(dbConfig);
-     console.log('Connection pool created successfully.');
+     console.log('Successfully connected to Oracle database');
    } catch (err) {
      console.error('Error creating connection pool', err);
    }
@@ -172,39 +172,6 @@
    }
  });
 
- // User info API
- app.get('/user-info', async (req, res) => {
-   let connection;
-   try {
-     connection = await oracledb.getConnection();
-     const { client_id } = req.query;
-     if (!client_id) {
-       return res.status(400).json({ success: false, message: 'Client ID is required.' });
-     }
-
-     const sql = `SELECT CLIENT_NAME FROM TBL_CLIENT WHERE CLIENT_ID = :client_id`;
-     const result = await connection.execute(sql, [client_id]);
-
-     if (result.rows.length > 0) {
-       const userName = result.rows[0][0];
-       return res.status(200).json({ success: true, userName: userName });
-     } else {
-       return res.status(404).json({ success: false, message: 'User not found.' });
-     }
-   } catch (err) {
-     console.error(err);
-     res.status(500).json({ success: false, message: 'A server error occurred.' });
-   } finally {
-     if (connection) {
-       try {
-         await connection.close();
-       } catch (err) {
-         console.error(err);
-       }
-     }
-   }
- });
-
  // Client info API ( )
  app.get('/client/info', async (req, res) => {
    let connection;
@@ -255,6 +222,76 @@
      }
    }
  });
+
+ // 관리자 전용 Client info API ( )
+app.get('/admin/client/list', async (req, res) => {
+  let connection;
+  try {
+    connection = await oracledb.getConnection();
+    const { clientStatus } = req.query;
+
+    let sql;
+    let params;
+
+    if (clientStatus) {
+      sql = `
+      SELECT
+        CLIENT_NO,
+        CLIENT_ID,
+        CLIENT_PASSWORD,
+        CLIENT_NAME,
+        CLIENT_STATUS,
+        CLIENT_ADDR,
+        CLIENT_PHONE_NUMBER,
+        CLIENT_EMAIL,
+        TO_CHAR(JOIN_DATE, 'YY/MM/DD') "joinDate"
+      FROM TBL_CLIENT
+      WHERE CLIENT_STATUS = :clientStatus
+      `;
+      params = [clientStatus];
+    } else {
+      sql = `
+      SELECT
+        CLIENT_NO,
+        CLIENT_ID,
+        CLIENT_PASSWORD,
+        CLIENT_NAME,
+        CLIENT_STATUS,
+        CLIENT_ADDR,
+        CLIENT_PHONE_NUMBER,
+        CLIENT_EMAIL,
+        TO_CHAR(JOIN_DATE, 'YY/MM/DD') "joinDate"
+      FROM TBL_CLIENT
+      `;
+      params = [];
+    }
+
+    const result = await connection.execute(sql, params);
+
+    const columnNames = result.metaData.map(col => col.name);
+    const clientList = result.rows.map(row => {
+      const obj = {};
+      columnNames.forEach((colName, index) => {
+        obj[colName] = row[index];
+      });
+      return obj;
+    });
+
+    res.status(200).json({ success: true, clientList: clientList });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'A server error occurred.' });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+});
 
  // Client edit API 추가
  app.get('/client/edit', async (req, res) => {
@@ -406,6 +443,63 @@
    }
  });
 
+ // 관리자 전용 Account list API
+ app.get('/admin/account/list', async (req, res) => {
+   let connection;
+   try {
+     connection = await oracledb.getConnection();
+     const { client_id, accountKind } = req.query;
+     if (!client_id) {
+       return res.status(400).json({ success: false, message: 'Client ID is missing.' });
+     }
+
+     // 1. Retrieve CLIENT_NO using client_id
+     const clientSql = `SELECT CLIENT_NO FROM TBL_CLIENT WHERE CLIENT_ID = :client_id`;
+     const clientResult = await connection.execute(clientSql, [client_id]);
+     if (clientResult.rows.length === 0) {
+       return res.status(404).json({ success: false, message: 'User not found.' });
+     }
+    const clientNo = clientResult.rows[0][0];
+
+     // 2. Dynamically create SQL to retrieve account list based on the condition
+     let accountSql = `
+    SELECT * FROM TBL_ACCOUNT
+   `;
+     const params = [];
+
+     if (accountKind) {
+            accountSql += ` WHERE ACCOUNT_KIND = :accountKind`;
+            params.push(accountKind);
+        }
+
+     const accountResult = await connection.execute(accountSql, params);
+
+     // Convert the result to an array of objects
+     const columnNames = accountResult.metaData.map(col => col.name);
+     const accountList = accountResult.rows.map(row => {
+       const obj = {};
+       columnNames.forEach((colName, index) => {
+         obj[colName] = row[index];
+       });
+       return obj;
+     });
+
+     res.status(200).json({ success: true, accountList: accountList });
+
+   } catch (err) {
+     console.error(err);
+     res.status(500).json({ success: false, message: 'A server error occurred.' });
+   } finally {
+     if (connection) {
+       try {
+         await connection.close();
+       } catch (err) {
+         console.error(err);
+       }
+     }
+   }
+ });
+
  // Account details and transaction history API
  app.get('/account/view', async (req, res) => {
    let connection;
@@ -520,6 +614,165 @@
        accountKind: accountKind,
        transactionList: transactionList
      });
+
+   } catch (err) {
+     console.error(err);
+     res.status(500).json({ success: false, message: 'A server error occurred.' });
+   } finally {
+     if (connection) {
+       try {
+         await connection.close();
+       } catch (err) {
+         console.error(err);
+       }
+     }
+   }
+ });
+
+  // Account details and transaction history API
+ app.get('/admin/transaction/list', async (req, res) => {
+   let connection;
+   try {
+     connection = await oracledb.getConnection();
+     const { transactionKind } = req.query;
+
+     // 1. Retrieve account name, wealth, and kind from TBL_ACCOUNT
+     const accountSql = `
+    SELECT ACCOUNT_NAME, WEALTH, ACCOUNT_KIND
+    FROM TBL_ACCOUNT
+   `;
+     const accountResult = await connection.execute(accountSql);
+
+     if (accountResult.rows.length === 0) {
+       return res.status(404).json({ success: false, message: 'Account not found.' });
+     }
+
+     const accountName = accountResult.rows[0][0];
+     const wealth = accountResult.rows[0][1];
+     const accountKind = accountResult.rows[0][2];
+
+     // 2. Dynamically retrieve transaction history from TBL_TRANSACTION
+     let transactionSql;
+     let params = [];
+
+     // Construct SQL query and bind variables based on transaction type
+     if (transactionKind === '입금') {
+       transactionSql = `
+     SELECT
+      TRANSACTION_DATE,
+      TRANSACTION_NO,
+      TRANSACTION_KIND,
+      FROM_ACCOUNT,
+      TO_ACCOUNT,
+      AMOUNT,
+      MEMO
+     FROM TBL_TRANSACTION
+     WHERE TRANSACTION_KIND = :transactionKind
+     ORDER BY TRANSACTION_DATE DESC
+    `;
+       params = [transactionKind];
+     } else if (transactionKind === '출금') {
+       transactionSql = `
+     SELECT
+      TRANSACTION_DATE,
+      TRANSACTION_NO,
+      TRANSACTION_KIND,
+      FROM_ACCOUNT,
+      TO_ACCOUNT,
+      AMOUNT,
+      MEMO
+     FROM TBL_TRANSACTION
+     WHERE TRANSACTION_KIND = :transactionKind
+     ORDER BY TRANSACTION_DATE DESC
+    `;
+       params = [transactionKind];
+     } else if (transactionKind === '이체') {
+       transactionSql = `
+     SELECT
+      TRANSACTION_DATE,
+      TRANSACTION_NO,
+      TRANSACTION_KIND,
+      FROM_ACCOUNT,
+      TO_ACCOUNT,
+      AMOUNT,
+      MEMO
+     FROM TBL_TRANSACTION
+     WHERE TRANSACTION_KIND = :transactionKind
+     ORDER BY TRANSACTION_DATE DESC
+    `;
+       params = [transactionKind];
+     } else { // '' or '전체' (All)
+       transactionSql = `
+     SELECT
+      TRANSACTION_DATE,
+      TRANSACTION_NO,
+      TRANSACTION_KIND,
+      FROM_ACCOUNT,
+      TO_ACCOUNT,
+      AMOUNT,
+      MEMO 
+     FROM TBL_TRANSACTION
+     ORDER BY TRANSACTION_DATE DESC
+    `;
+       params = [];
+     }
+
+     const transactionResult = await connection.execute(transactionSql, params);
+
+     // Convert the result to an array of objects
+     const columnNames = transactionResult.metaData.map(col => col.name);
+     const transactionList = transactionResult.rows.map(row => {
+       const obj = {};
+       columnNames.forEach((colName, index) => {
+         obj[colName] = row[index];
+       });
+       return obj;
+     });
+
+     // Respond to the client
+     res.status(200).json({
+       success: true,
+       accountName: accountName,
+       wealth: wealth,
+       accountKind: accountKind,
+       transactionList: transactionList
+     });
+
+   } catch (err) {
+     console.error(err);
+     res.status(500).json({ success: false, message: 'A server error occurred.' });
+   } finally {
+     if (connection) {
+       try {
+         await connection.close();
+       } catch (err) {
+         console.error(err);
+       }
+     }
+   }
+ });
+
+  // admin/transaction/delete API 추가
+ app.get('/admin/transaction/delete', async (req, res) => {
+   let connection;
+   try {
+     connection = await oracledb.getConnection();
+     const { transactionNo } = req.query;
+
+     const sql = `
+      DELETE FROM TBL_TRANSACTION
+      WHERE TRANSACTION_NO = :transactionNo
+     `;
+
+     await connection.execute(sql, [transactionNo], { autoCommit: true });
+
+     // Check if a row was actually deleted
+     const rowsAffected = connection.rowsAffected;
+     if (rowsAffected === 0) {
+       return res.status(404).json({ success: false, message: 'User not found.' });
+     }
+
+     res.status(200).json({ success: true, result: 'success', message: 'User deleted successfully.' });
 
    } catch (err) {
      console.error(err);
@@ -861,6 +1114,48 @@
      }
    }
  });
+
+ // account/update API (GET method)
+app.get('/account/update', async (req, res) => {
+    let connection;
+    try {
+        connection = await oracledb.getConnection();
+        const { accountNo, accountName } = req.query;
+
+        if (!accountNo || !accountName) {
+            return res.status(400).json({ success: false, message: 'Account number and name are required.' });
+        }
+
+        const sql = `
+            UPDATE TBL_ACCOUNT
+            SET ACCOUNT_NAME = :accountName
+            WHERE ACCOUNT_NO = :accountNo
+        `;
+
+        const result = await connection.execute(sql, {
+            accountName: accountName,
+            accountNo: accountNo
+        }, { autoCommit: true });
+
+        if (result.rowsAffected === 0) {
+            return res.status(404).json({ success: false, message: 'Account not found or no changes made.' });
+        }
+
+        res.status(200).json({ success: true, message: 'Account name updated successfully.' });
+
+    } catch (err) {
+        console.error('Error updating account name:', err);
+        res.status(500).json({ success: false, message: 'A server error occurred.' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    }
+});
 
 
  // Start the server

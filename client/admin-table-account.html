@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>계좌 관리</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2D3748;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #4A5568;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div id="app" class="w-full max-w-7xl">
+        <!-- 로그인 상태일 때 UI -->
+        <div v-if="isLoggedIn" class="bg-gray-800 p-8 rounded-2xl shadow-xl border border-gray-700">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h1 class="text-3xl font-bold text-gray-100">계좌 관리</h1>
+                <div class="flex gap-4 items-center">
+                    <select v-model="accountKind" @change="fnAccountList" class="bg-gray-700 text-gray-100 px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+                        <option value="">:: 전체 ::</option>
+                        <option value="예금">예금</option>
+                        <option value="대출">대출</option>
+                    </select>
+                    <button @click="fnGoBack" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-all duration-200">관리자 메인으로</button>
+                </div>
+            </div>
+
+            <!-- 정보 출력 테이블 -->
+            <div class="overflow-x-auto rounded-lg shadow-md border border-gray-700">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider text-gray-300">
+                                수정
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider text-gray-300">
+                                삭제
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider text-gray-300">
+                                계좌번호
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider text-gray-300">
+                                고객번호
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider text-gray-300">
+                                계좌명
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider text-gray-300">
+                                현재 금액
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider text-gray-300">
+                                계좌상태
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider text-gray-300">
+                                계좌종류
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider text-gray-300">
+                                마지막 거래 날짜
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider text-gray-300">
+                                계좌개설일
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700">
+                        <tr v-for="item in list" :key="item.ACCOUNT_NO" class="hover:bg-gray-700 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <button @click="fnEdit(item.ACCOUNT_NO)" class="bg-green-600 hover:bg-green-700 text-white font-medium py-1 px-3 rounded-lg transition-all duration-200">수정</button>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <button @click="fnAccountClose(item.ACCOUNT_NO)" class="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded-lg transition-all duration-200">삭제</button>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base font-medium text-blue-400">
+                                <a href="javascript:;" @click="fnView(item.ACCOUNT_NO)">{{item.ACCOUNT_NO}}</a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-300">{{item.CLIENT_NO}}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-300">{{item.ACCOUNT_NAME}}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-300">{{ formatWealth(item.WEALTH) }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base font-medium" :class="statusColor(item.ACCOUNT_STATUS)">{{ getStatusText(item.ACCOUNT_STATUS) }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-300">{{item.ACCOUNT_KIND}}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-300">{{ formatDate(item.LAST_TRANSACTION_DATE) }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-base text-gray-300">{{ formatDate(item.CREATE_DATE) }}</td>
+                        </tr>
+                        <tr v-if="list.length === 0" class="bg-gray-800">
+                            <td colspan="8" class="px-6 py-4 text-center text-base text-gray-400">
+                                계좌가 없습니다.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 커스텀 모달 (알림/확인) -->
+        <div v-if="showModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-300">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 max-w-sm w-full">
+                <p class="text-gray-200 text-lg text-center mb-4">{{ modalMessage }}</p>
+                <div class="flex gap-4 justify-center" v-if="modalType === 'alert'">
+                    <button @click="closeModal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-all duration-200">확인</button>
+                </div>
+                <div class="flex gap-4 justify-center" v-if="modalType === 'confirm'">
+                    <button @click="confirmAction" class="w-1/2 bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition-all duration-200">예</button>
+                    <button @click="closeModal" class="w-1/2 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 rounded-lg transition-all duration-200">아니오</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                // 변수 - (key : value)
+                list: [],
+                accountKind: "",
+                isLoggedIn: false,
+                sessionId: null,
+                showModal: false,
+                modalMessage: "",
+                modalType: 'alert', // 'alert' 또는 'confirm'
+                modalCallback: null
+            };
+        },
+        methods: {
+            // 함수(메소드) - (key : function())
+            fnGoBack: function() {
+                location.href="admin-main.html";
+            },
+            fnAccountList: function () {
+                let self = this;
+                let param = {
+                    accountKind: self.accountKind,
+                    client_id: self.sessionId // ✨ 로그인한 사용자의 ID를 파라미터로 추가
+                };
+                
+                $.ajax({
+                    url: "http://localhost:3009/admin/account/list",
+                    dataType: "json",
+                    type: "GET",
+                    data: param,
+                    success: function (data) {
+                        if (data.success) {
+                            self.list = data.accountList;
+                        } else {
+                            // 세션이 유효하지 않으면 로그아웃 처리
+                            self.showAlert("세션이 만료되었습니다. 다시 로그인해주세요.", () => {
+                                location.href = "login.html";
+                            });
+                        }
+                    },
+                    error: function() {
+                        self.showAlert("서버 통신 오류가 발생했습니다.", () => {
+                            location.href = "main.html";
+                        });
+                    }
+                });
+            },
+            //계좌삭제
+            fnAccountClose: function(accountNo){
+                let self = this;
+                self.showConfirm(
+                    "삭제하시겠습니까?",
+                    () => {
+                        let param = {
+                            accountNo: accountNo,
+                        };
+                        $.ajax({
+                            url: "http://localhost:3009/account/deposit/delete",
+                            dataType: "json",
+                            type: "GET",
+                            data: param,
+                            success: function (data) {
+                                self.showAlert("삭제 되었습니다.");
+                                self.fnAccountList();
+                            },
+                            error: function(xhr, status, error) {
+                                console.error("Error deleting account:", error);
+                                self.showAlert("삭제 중 오류가 발생했습니다.");
+                            }
+                        });
+                    }
+                );
+            },
+            fnView: function(accountNo) {
+                location.href=`account-view.html?accountNo=${accountNo}`;
+            },
+            // ✨ 금액을 원화 단위로 포맷하는 헬퍼 함수
+            formatWealth: function(amount) {
+                if (amount === null || amount === undefined) return '0원';
+                return new Intl.NumberFormat('ko-KR').format(amount) + '원';
+            },
+            // ✨ 날짜를 YYYY-MM-DD 형식으로 포맷하는 헬퍼 함수
+            formatDate: function(dateStr) {
+                if (!dateStr) return '';
+                const date = new Date(dateStr);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            },
+            // ✨ 계좌 상태 코드에 따라 텍스트를 반환하는 함수
+            getStatusText: function(status) {
+                switch(status) {
+                    case 'A': return '활성';
+                    case 'D': return '비활성';
+                    case 'S': return '정지';
+                    default: return status;
+                }
+            },
+            // ✨ 계좌 상태에 따라 텍스트 색상을 반환하는 함수
+            statusColor: function(status) {
+                switch(status) {
+                    case 'A': return 'text-green-400';
+                    case 'D': return 'text-red-400';
+                    case 'S': return 'text-yellow-400';
+                    default: return 'text-gray-300';
+                }
+            },
+            // ✨ 사용자 정의 알림 모달을 표시하는 함수
+            showAlert: function(message, callback = null) {
+                this.modalMessage = message;
+                this.modalType = 'alert';
+                this.modalCallback = callback;
+                this.showModal = true;
+            },
+            // ✨ 사용자 정의 확인 모달을 표시하는 함수
+            showConfirm: function(message, callback) {
+                this.modalMessage = message;
+                this.modalType = 'confirm';
+                this.modalCallback = callback;
+                this.showModal = true;
+            },
+            // ✨ 모달 닫기
+            closeModal: function() {
+                this.showModal = false;
+                this.modalCallback = null;
+            },
+            // ✨ 확인 모달에서 '예' 클릭 시 실행
+            confirmAction: function() {
+                if (this.modalCallback) {
+                    this.modalCallback();
+                }
+                this.closeModal();
+            },
+            fnEdit: function(){
+                this.showAlert("수정 기능은 현재 구현되지 않았습니다.");
+            }
+        }, // methods
+        mounted() {
+            // 처음 시작할 때 실행되는 부분
+            let self = this;
+            // ✨ 페이지 로드 시 로그인 상태 확인
+            const sessionId = sessionStorage.getItem('sessionId');
+            
+            if (sessionId) {
+                self.isLoggedIn = true;
+                self.sessionId = sessionId;
+                self.fnAccountList(); // 로그인 상태일 때만 계좌 목록 조회
+            } else {
+                self.isLoggedIn = false;
+            }
+        }
+    });
+
+    app.mount('#app');
+</script>

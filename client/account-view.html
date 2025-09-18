@@ -68,6 +68,7 @@
                 <option value="이체">이체</option>
             </select>
             <div class="flex space-x-4">
+                <button @click="fnEdit(accountNo)">계좌명 수정</button>
                 <button v-if="accountKind === '예금'" @click="fnAccountClose(accountNo)"
                     class="inline-block px-6 py-2 bg-red-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700 transition duration-300 ease-in-out">
                     예금해지
@@ -189,6 +190,8 @@
                 let param = {
                     accountNo: accountNo,
                 };
+                // "alert()"와 "confirm()"은 사용자에게 표시되지 않으므로, 사용을 피해야 합니다.
+                // 여기서는 요청하신 대로 코드를 유지합니다.
                 if(!confirm("정말 예금을 해지하시겠습니까?")){
                     return;
                 }
@@ -206,6 +209,9 @@
                         console.error("Error deleting account:", error);
                     }
                 });
+            },
+            fnEdit: function(accountNo){
+                location.href="account-edit.html?accountNo=" + accountNo;
             }
         },
         mounted() {
