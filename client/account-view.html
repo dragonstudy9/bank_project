@@ -13,9 +13,9 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
-                }
-            }
-        }
+                },
+            },
+        };
     </script>
     <style>
         body {
@@ -34,20 +34,30 @@
 <body>
     <div id="app" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-4xl mx-auto">
         <!-- 제목과 버튼을 배치하는 컨테이너 -->
+        <div class="mb-8 flex justify-center">
+            <h1
+                class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse drop-shadow-xl">
+                <a href="main.html">원정은행</a></h1>
+        </div>
+        <hr class="my-6">
         <div class="flex justify-between items-center mb-6 relative">
-            <button onclick="window.location.href='account-list.html'"
+            <button @click="fnGoBack"
                 class="inline-block absolute left-0 px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-full shadow-lg hover:bg-gray-400 transition duration-300 ease-in-out">
                 이전
             </button>
             <h1 class="text-3xl font-bold text-gray-800 flex-grow text-center">계좌내역 조회</h1>
             <div class="flex space-x-4">
-                <button @click="goToDepositTransfer"
+                <button v-if="accountKind === '예금'" @click="goToDepositTransfer"
                     class="inline-block px-6 py-2 bg-indigo-600 text-white font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 ease-in-out">
                     이체하기
                 </button>
-                <button @click="goToDepositSelf"
+                <button v-if="accountKind === '예금'" @click="goToDepositSelf"
                     class="inline-block px-6 py-2 bg-blue-600 text-white font-semibold rounded-full shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out">
                     입출금 하기
+                </button>
+                <button v-if="accountKind === '대출'" @click="fnShowMessage"
+                    class="inline-block px-6 py-2 bg-purple-600 text-white font-semibold rounded-full shadow-lg hover:bg-purple-700 transition duration-300 ease-in-out">
+                    대출상환
                 </button>
             </div>
         </div>
@@ -68,30 +78,27 @@
                 <option value="이체">이체</option>
             </select>
             <div class="flex space-x-4">
-                <button @click="fnEdit(accountNo)">계좌명 수정</button>
+                <button @click="fnEdit(accountNo)" class="inline-block px-6 py-2 bg-lime-500 text-white font-semibold rounded-full shadow-lg hover:bg-lime-600 transition duration-300 ease-in-out">계좌명 수정</button>
                 <button v-if="accountKind === '예금'" @click="fnAccountClose(accountNo)"
                     class="inline-block px-6 py-2 bg-red-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700 transition duration-300 ease-in-out">
                     예금해지
                 </button>
-                <button v-if="accountKind === '대출'" 
-                    class="inline-block px-6 py-2 bg-purple-600 text-white font-semibold rounded-full shadow-lg hover:bg-purple-700 transition duration-300 ease-in-out">
-                    대출상환
-                </button>
+                
             </div>
         </div>
 
         <!-- 정보 출력 테이블 -->
         <div class="overflow-x-auto">
-            <table class="w-full table-auto">
+            <table class="w-full table-auto rounded-xl overflow-hidden shadow-md">
                 <thead>
-                    <tr class="bg-blue-600 text-white text-left text-sm font-semibold rounded-t-xl">
-                        <th class="px-6 py-3 rounded-tl-xl">거래날짜</th>
+                    <tr class="bg-blue-600 text-white text-left text-sm font-semibold">
+                        <th class="px-6 py-3">거래날짜</th>
                         <th class="px-6 py-3">거래번호</th>
                         <th class="px-6 py-3">거래종류</th>
                         <th class="px-6 py-3">보낸이 계좌번호</th>
                         <th class="px-6 py-3">받는이 계좌번호</th>
                         <th class="px-6 py-3">거래량</th>
-                        <th class="px-6 py-3 rounded-tr-xl">메모</th>
+                        <th class="px-6 py-3">메모</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -110,6 +117,18 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- 커스텀 모달 -->
+        <div v-if="showModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full">
+                <p class="text-gray-800 text-lg text-center font-semibold mb-4">{{ modalMessage }}</p>
+                <div class="flex justify-center gap-4">
+                    <button v-if="modalType === 'alert'" @click="closeModal" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200">확인</button>
+                    <button v-if="modalType === 'confirm'" @click="confirmAction" class="w-1/2 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-200">예</button>
+                    <button v-if="modalType === 'confirm'" @click="closeModal" class="w-1/2 bg-gray-400 text-gray-800 py-2 rounded-lg hover:bg-gray-500 transition duration-200">아니오</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>
@@ -123,10 +142,24 @@
                 accountNo: "",
                 accountName: "계좌 정보 로딩 중...",
                 wealth: 0,
-                accountKind: "" // 계좌 종류를 저장할 새로운 속성 추가
+                accountKind: "", // 계좌 종류를 저장할 새로운 속성 추가
+                showModal: false,
+                modalMessage: "",
+                modalType: 'alert', // 'alert' 또는 'confirm'
+                modalCallback: null
             };
         },
         methods: {
+            // 이전 페이지로 돌아가기
+            fnGoBack: function() {
+                // 관리자 페이지에서 왔는지 일반 페이지에서 왔는지 구분 필요
+                const referrer = document.referrer;
+                if (referrer.includes('admin-table-account.html')) {
+                    window.location.href = 'admin-table-account.html';
+                } else {
+                    window.location.href = 'account-list.html';
+                }
+            },
             // 금액을 원화 단위로 포맷하는 헬퍼 함수
             formatWealth: function(amount) {
                 if (amount === null || amount === undefined) return '0원';
@@ -187,31 +220,61 @@
             //예금해지
             fnAccountClose: function(accountNo){
                 let self = this;
-                let param = {
-                    accountNo: accountNo,
-                };
-                // "alert()"와 "confirm()"은 사용자에게 표시되지 않으므로, 사용을 피해야 합니다.
-                // 여기서는 요청하신 대로 코드를 유지합니다.
-                if(!confirm("정말 예금을 해지하시겠습니까?")){
-                    return;
-                }
-                $.ajax({
-                    url: "http://localhost:3009/account/deposit/delete",
-                    dataType: "json",
-                    type: "GET",
-                    data: param,
-                    success: function (data) {
-                        alert("예금이 해지 되었습니다.");
-                        window.location.href = 'account-list.html';
-                        
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error deleting account:", error);
+                self.showConfirm(
+                    "정말 예금을 해지하시겠습니까?",
+                    () => {
+                        let param = {
+                            accountNo: accountNo,
+                        };
+                        $.ajax({
+                            url: "http://localhost:3009/account/deposit/delete",
+                            dataType: "json",
+                            type: "GET",
+                            data: param,
+                            success: function (data) {
+                                console.log("yyyyyyyyy");
+                                alert("예금이 해지 되었습니다.");
+                                window.location.href = 'account-list.html';
+                            },
+                            error: function(xhr, status, error) {
+                                console.error("Error deleting account:", error);
+                            }
+                        });
                     }
-                });
+                );
             },
             fnEdit: function(accountNo){
                 location.href="account-edit.html?accountNo=" + accountNo;
+            },
+            // 대출 상환 버튼을 클릭했을 때 메시지를 보여주는 함수
+            fnShowMessage: function() {
+                this.showAlert("나중에 받겠습니다.");
+            },
+            // 사용자 정의 알림 모달을 표시하는 함수
+            showAlert: function(message, callback = null) {
+                this.modalMessage = message;
+                this.modalType = 'alert';
+                this.modalCallback = callback;
+                this.showModal = true;
+            },
+            // 사용자 정의 확인 모달을 표시하는 함수
+            showConfirm: function(message, callback) {
+                this.modalMessage = message;
+                this.modalType = 'confirm';
+                this.modalCallback = callback;
+                this.showModal = true;
+            },
+            // 모달 닫기
+            closeModal: function() {
+                this.showModal = false;
+                this.modalCallback = null;
+            },
+            // 확인 모달에서 '예' 클릭 시 실행
+            confirmAction: function() {
+                if (this.modalCallback) {
+                    this.modalCallback();
+                }
+                this.closeModal();
             }
         },
         mounted() {

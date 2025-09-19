@@ -1,181 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f2f5;
-            margin: 0;
-        }
-
-        #app {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 800px;
-            text-align: center;
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-
-        .input-group input {
-            width: 80%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-        
-        /* 라디오 버튼 그룹 스타일 */
-        .radio-group {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 1.5rem;
-            justify-content: center;
-        }
-        
-        .radio-group label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: normal;
-        }
-        
-        /* 이메일 유효성 메시지 */
-        .email-message {
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-top: -10px;
-        }
-        
-        .email-message.valid {
-            color: #1e7145;
-        }
-        
-        .email-message.invalid {
-            color: #c90000;
-        }
-
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 2rem;
-        }
-
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn-join {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-join:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-cancel {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-cancel:hover {
-            background-color: #5a6268;
-        }
-
-        .message {
-            margin-top: 1.5rem;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .success-message {
-            background-color: #e6f7e9;
-            color: #1e7145;
-        }
-
-        .error-message {
-            background-color: #ffe8e8;
-            color: #c90000;
-        }
-    </style>
 </head>
 
-<body>
-    <div id="app">
-        <h1>회원가입</h1>
-        <div class="input-group">
-            <label>아이디 : <input type="text" v-model="clientId"></label>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen p-4">
+    <div id="app" class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-lg text-center">
+        <div class="mb-8">
+            <h1
+                class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse drop-shadow-xl">
+                <a href="main.html">원정은행</a>
+            </h1>
         </div>
-        <div class="input-group">
-            <label>비밀번호 : <input type="password" v-model="pwd"></label>
+        <hr class="my-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">회원가입</h1>
+        <div class="grid grid-cols-1 gap-6 text-left">
+            <div class="input-group">
+                <label for="clientId" class="block text-base font-semibold text-gray-700 mb-2">아이디</label>
+                <input id="clientId" type="text" v-model="clientId"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+            </div>
+            <div class="input-group">
+                <label for="pwd" class="block text-base font-semibold text-gray-700 mb-2">비밀번호</label>
+                <input id="pwd" type="password" v-model="pwd"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+            </div>
+            <div class="input-group">
+                <label for="clientName" class="block text-base font-semibold text-gray-700 mb-2">이름</label>
+                <input id="clientName" type="text" v-model="clientName"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+            </div>
+            <div class="input-group">
+                <label for="addr" class="block text-base font-semibold text-gray-700 mb-2">주소</label>
+                <input id="addr" type="text" v-model="addr"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+            </div>
+            <div class="input-group">
+                <label for="phoneNumber" class="block text-base font-semibold text-gray-700 mb-2">휴대폰 번호</label>
+                <input id="phoneNumber" type="tel" v-model="phoneNumber"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+            </div>
+            <div class="input-group">
+                <label for="email" class="block text-base font-semibold text-gray-700 mb-2">이메일</label>
+                <input id="email" type="email" v-model="email" @input="emailValidate"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+                <div v-if="email"
+                    :class="[isEmailValid ? 'text-green-600' : 'text-red-600']"
+                    class="text-sm mt-2 font-medium">
+                    <span v-if="!isEmailValid">올바른 이메일 형식을 입력해주세요.</span>
+                </div>
+            </div>
         </div>
-        <div class="input-group">
-            <label>이름 : <input type="text" v-model="clientName"></label>
-        </div>
-        <div class="input-group">
-            <label>주소 : <input type="text" v-model="addr"></label>
-        </div>
-        <div class="input-group">
-            <label>휴대폰 번호 : <input type="tel" v-model="phoneNumber"></label>
-        </div>
-        <div class="input-group">
-            <label>
-                이메일 : <input type="email" v-model="email" @input="emailValidate">
+
+        <div class="flex items-center justify-center gap-6 mt-6">
+            <p class="text-xl font-semibold text-gray-700">가입유형:</p>
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="radio" value="P" v-model="clientStatus" class="form-radio text-blue-600">
+                <span class="text-xl text-gray-700">가계고객</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="radio" value="C" v-model="clientStatus" class="form-radio text-blue-600">
+                <span class="text-xl text-gray-700">기업고객</span>
             </label>
         </div>
-        <div class="email-message" :class="{ 'valid': isEmailValid, 'invalid': email && !isEmailValid }">
-            <span v-if="email && !isEmailValid">올바른 이메일 형식을 입력해주세요.</span>
+
+        <div class="flex gap-4 mt-8">
+            <button @click="fnJoin"
+                class="flex-1 py-3 px-6 rounded-lg font-semibold transition-colors duration-300 bg-blue-600 text-white hover:bg-blue-700 shadow-md">
+                회원가입
+            </button>
+            <button @click="fnCancel"
+                class="flex-1 py-3 px-6 rounded-lg font-semibold transition-colors duration-300 bg-gray-500 text-white hover:bg-gray-600 shadow-md">
+                취소
+            </button>
         </div>
-        
-        <div class="radio-group">
-            <p>가입유형: </p>
-            <label><input type="radio" value="P" v-model="clientStatus">가계고객</label>
-            <label><input type="radio" value="C" v-model="clientStatus">기업고객</label>
+        <div v-if="message" class="mt-6 p-4 rounded-lg font-semibold"
+            :class="messageClass === 'success-message' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+            {{ message }}
         </div>
-        
-        <div class="btn-group">
-            <button @click="fnJoin" class="btn-join">회원가입</button>
-            <button @click="fnCancel" class="btn-cancel">취소</button>
-        </div>
-        <div v-if="message" class="message" :class="messageClass">{{ message }}</div>
     </div>
 </body>
 

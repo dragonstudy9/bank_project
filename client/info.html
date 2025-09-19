@@ -17,6 +17,12 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
     <div id="app" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-2xl text-center">
+        <div class="mb-8">
+           <h1
+                 class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse drop-shadow-xl">
+                    <a href="main.html">원정은행</a></h1>
+        </div>
+        <hr class="my-6">
         <h1 class="text-3xl font-bold mb-6 text-gray-800">회원정보 조회</h1>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse rounded-xl overflow-hidden">
@@ -53,10 +59,10 @@
             </table>
         </div>
         <div class="mt-8 flex justify-center space-x-4">
-            <button @click="fnGoBack" class="bg-blue-500 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-blue-600 transition-colors">메인으로</button>
-            <button @click="fnGoEdit" class="bg-green-500 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-green-600 transition-colors">회원정보 수정</button>
+            <button @click="fnGoBack" class="bg-blue-500 text-white font-semibold py-4 px-8 rounded-full shadow-md hover:bg-blue-600 transition-colors text-xl">메인으로</button>
+            <button @click="fnGoEdit" class="bg-green-500 text-white font-semibold py-4 px-8 rounded-full shadow-md hover:bg-green-600 transition-colors text-xl">회원정보 수정</button>
             <!-- CLIENT_STATUS가 'A'가 아닐 때만 회원탈퇴 버튼을 표시 -->
-            <button v-if="info.CLIENT_STATUS && info.CLIENT_STATUS !== 'A'" @click="fnDrop" class="bg-red-500 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-red-600 transition-colors">회원탈퇴</button>
+            <button v-if="info.CLIENT_STATUS && info.CLIENT_STATUS !== 'A'" @click="fnDrop" class="bg-red-500 text-white font-semibold py-4 px-8 rounded-full shadow-md hover:bg-red-600 transition-colors text-xl">회원탈퇴</button>
         </div>
 
         <!-- 커스텀 모달 창 -->

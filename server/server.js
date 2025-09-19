@@ -262,6 +262,7 @@ app.get('/admin/client/list', async (req, res) => {
         CLIENT_EMAIL,
         TO_CHAR(JOIN_DATE, 'YY/MM/DD') "joinDate"
       FROM TBL_CLIENT
+      WHERE CLIENT_STATUS != 'A'
       `;
       params = [];
     }
@@ -383,7 +384,7 @@ app.get('/admin/client/list', async (req, res) => {
    let connection;
    try {
      connection = await oracledb.getConnection();
-     const { client_id, accountKind } = req.query;
+     const { accountKind, client_id } = req.query;
      if (!client_id) {
        return res.status(400).json({ success: false, message: 'Client ID is missing.' });
      }
@@ -463,14 +464,79 @@ app.get('/admin/client/list', async (req, res) => {
 
      // 2. Dynamically create SQL to retrieve account list based on the condition
      let accountSql = `
-    SELECT * FROM TBL_ACCOUNT
+    SELECT * FROM TBL_ACCOUNT WHERE CLIENT_NO != '1' 
    `;
      const params = [];
 
      if (accountKind) {
-            accountSql += ` WHERE ACCOUNT_KIND = :accountKind`;
+            accountSql += ` AND ACCOUNT_KIND = :accountKind `;
             params.push(accountKind);
         }
+
+     const accountResult = await connection.execute(accountSql, params);
+
+     // Convert the result to an array of objects
+     const columnNames = accountResult.metaData.map(col => col.name);
+     const accountList = accountResult.rows.map(row => {
+       const obj = {};
+       columnNames.forEach((colName, index) => {
+         obj[colName] = row[index];
+       });
+       return obj;
+     });
+
+     res.status(200).json({ success: true, accountList: accountList });
+
+   } catch (err) {
+     console.error(err);
+     res.status(500).json({ success: false, message: 'A server error occurred.' });
+   } finally {
+     if (connection) {
+       try {
+         await connection.close();
+       } catch (err) {
+         console.error(err);
+       }
+     }
+   }
+ });
+
+ // Account list API
+ app.get('/account/edit/list', async (req, res) => {
+   let connection;
+   try {
+     connection = await oracledb.getConnection();
+     const { accountNo, accountKind, client_id } = req.query;
+     if (!client_id) {
+       return res.status(400).json({ success: false, message: 'Client ID is missing.' });
+     }
+
+     // 1. Retrieve CLIENT_NO using client_id
+     const clientSql = `SELECT CLIENT_NO FROM TBL_CLIENT WHERE CLIENT_ID = :client_id`;
+     const clientResult = await connection.execute(clientSql, [client_id]);
+     if (clientResult.rows.length === 0) {
+       return res.status(404).json({ success: false, message: 'User not found.' });
+     }
+     const clientNo = clientResult.rows[0][0];
+
+     // 2. Dynamically create SQL to retrieve account list based on the condition
+     let accountSql = `
+    SELECT
+     ACCOUNT_NO,
+     ACCOUNT_NAME,
+     WEALTH,
+     ACCOUNT_KIND,
+     LAST_TRANSACTION_DATE,
+     CREATE_DATE
+    FROM TBL_ACCOUNT
+    WHERE ACCOUNT_NO = : accountNo AND CLIENT_NO = :clientNo
+   `;
+     const params = [accountNo, clientNo];
+
+     if (accountKind) {
+       accountSql += ` AND ACCOUNT_KIND = :accountKind`;
+       params.push(accountKind);
+     }
 
      const accountResult = await connection.execute(accountSql, params);
 
@@ -815,7 +881,7 @@ app.get('/admin/client/list', async (req, res) => {
        updateSql = `UPDATE TBL_ACCOUNT SET WEALTH = WEALTH + :amount, LAST_TRANSACTION_DATE = SYSDATE WHERE ACCOUNT_NO = :accountNo`;
        transactionKind = '입금';
        toAccount = accountNo;
-       message = `${numericAmount.toLocaleString()} won deposited successfully.`;
+       message = `${numericAmount.toLocaleString()} 원을 성공적으로 입금했습니다.`;
      } else if (depositKind === '출금') {
        const wealthSql = `SELECT WEALTH FROM TBL_ACCOUNT WHERE ACCOUNT_NO = :accountNo FOR UPDATE`;
        const wealthResult = await connection.execute(wealthSql, [accountNo]);
@@ -827,12 +893,12 @@ app.get('/admin/client/list', async (req, res) => {
        const currentWealth = wealthResult.rows[0][0];
 
        if (currentWealth < numericAmount) {
-         return res.json({ success: false, message: 'Insufficient balance.' });
+         return res.json({ success: false, message: '잔액이 부족합니다.' });
        }
        updateSql = `UPDATE TBL_ACCOUNT SET WEALTH = WEALTH - :amount, LAST_TRANSACTION_DATE = SYSDATE WHERE ACCOUNT_NO = :accountNo`;
        transactionKind = '출금';
        fromAccount = accountNo;
-       message = `${numericAmount.toLocaleString()} won withdrawn successfully.`;
+       message = `${numericAmount.toLocaleString()} 원을 성공적으로 출금했습니다.`;
      } else {
        return res.status(400).json({ success: false, message: 'Invalid transaction type.' });
      }

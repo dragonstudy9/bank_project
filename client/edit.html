@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원정보 수정</title>
     <!-- jQuery와 Vue 3 라이브러리를 로드합니다. -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
@@ -147,7 +148,13 @@
 </head>
 <body>
     <div id="app">
-        <h1>회원정보 수정</h1>
+        <div class="mb-8">
+            <h1
+                class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse drop-shadow-xl">
+                <a href="main.html">원정은행</a></h1>
+        </div>
+        <hr class="my-6">
+        <h1 class="text-3xl font-bold text-gray-800 text-center mb-6">회원정보 수정</h1>
         <div v-if="showMessageBox" class="message-box-overlay">
             <div class="message-box">
                 <h2>{{ messageTitle }}</h2>
@@ -178,13 +185,12 @@
             </div>
         </div>
         <div class="button-group">
-            <button @click="fnEdit" class="edit-button">수정</button>
-            <button @click="fnCancel" class="cancel-button">취소</button>
+            <button @click="fnEdit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all hover:scale-105">수정</button>
+            <button @click="fnCancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-full shadow-lg transition-all hover:scale-105">취소</button>
         </div>
     </div>
 </body>
 </html>
-
 <script>
     const app = Vue.createApp({
         data() {
@@ -222,7 +228,6 @@
                     self.showMessage('이메일 형식 오류', '올바른 이메일 주소를 입력해주세요.', '확인');
                     return;
                 }
-
                 let param = self.info;
                 
                 $.ajax({
@@ -246,7 +251,6 @@
                 let param = {
                     client_id: self.sessionId
                 };
-
                 $.ajax({
                     url: "http://localhost:3009/client/info",
                     dataType: "json",
@@ -299,6 +303,5 @@
             }
         }
     });
-
     app.mount('#app');
 </script>
