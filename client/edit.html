@@ -181,7 +181,7 @@
             </div>
             <div class="form-row">
                 <label for="client-email">이메일</label>
-                <input id="client-email" type="email" v-model="info.CLIENT_EMAIL">
+                <input id="client-email" type="text" v-model="info.CLIENT_EMAIL">
             </div>
         </div>
         <div class="button-group">
@@ -222,9 +222,9 @@
             fnEdit: function () {
                 let self = this;
                 
-                // 이메일 형식 유효성 검사
+                // 이메일 형식 유효성 검사 (값이 있을 때만 실행)
                 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if (!emailRegex.test(self.info.CLIENT_EMAIL)) {
+                if (self.info.CLIENT_EMAIL && !emailRegex.test(self.info.CLIENT_EMAIL)) {
                     self.showMessage('이메일 형식 오류', '올바른 이메일 주소를 입력해주세요.', '확인');
                     return;
                 }
