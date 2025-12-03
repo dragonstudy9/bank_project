@@ -33,7 +33,7 @@ vue/express를 활용한 은행 전산 시스템 만들기
 | Database | ![Oracle](https://img.shields.io/badge/Oracle-F80000?style=for-the-badge&logo=oracle&logoColor=white) |
 | AI | ![Google Gemini](https://img.shields.io/badge/google%20gemini-8E75B2?style=for-the-badge&logo=google%20gemini&logoColor=white)
 
-## 6. 기획 및 설계
+## 6. 🖼️ 기획 및 설계
 
 엑셀을 통해 작업하였다. 
 
