@@ -71,7 +71,13 @@ vue/express를 활용한 은행 전산 시스템 만들기
 
 관리자인 경우, 관리자 전용 버튼을 통해 관리자 전용 페이지에 접근 가능합니다.
 
-<p align="center"> <img src="./img/메인화면.png" alt="메인 화면" width="700" height="300"/> </p> <p align="center"> <img src="./img/로그인후_메인화면.png" alt="로그인 후 메인 화면" width="700" height="300"/> </p>
+<p align="center"> 
+ <img src="./img/메인화면.png" alt="메인 화면" width="700" height="300"/> 
+</p> 
+
+<p align="center"> 
+ <img src="./img/로그인후_메인화면.png" alt="로그인 후 메인 화면" width="700" height="300"/> 
+</p>
 
 ### 2. 로그인
 
@@ -81,7 +87,9 @@ vue/express를 활용한 은행 전산 시스템 만들기
 
 회원가입이 되어 있지 않은 사용자를 위해 회원가입 버튼을 통해 회원가입 페이지로 바로 이동할 수 있도록 하였습니다.
 
-<p align="center"> <img src="./img/로그인화면.png" alt="로그인 화면" width="700" height="300"/> </p>
+<p align="center"> 
+ <img src="./img/로그인화면.png" alt="로그인 화면" width="700" height="300"/> 
+</p>
 
 ### 3. 회원가입
 
@@ -91,7 +99,9 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 
 이메일을 입력하는 경우 이메일 형식에 맞아야만 회원가입이 가능합니다.
 
-<p align="center"> <img src="./img/회원가입.png" alt="회원가입 화면" width="700" height="300"/> </p>
+<p align="center"> 
+ <img src="./img/회원가입.png" alt="회원가입 화면" width="700" height="300"/> 
+</p>
 
 ### 4. 회원정보 조회
 
@@ -99,7 +109,17 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 
 관리자는 회원탈퇴 버튼에 접근할 수 없습니다.
 
-<p align="center"> <img src="./img/일반회원정보_조회.png" alt="일반회원정보 조회 화면" width="700" height="300"/> </p> <p align="center"> <img src="./img/회원탈퇴.png" alt="회원탈퇴 화면" width="700" height="300"/> </p> <p align="center"> <img src="./img/관리자회원정보_조회.png" alt="관리자회원정보 조회 화면" width="700" height="300"/> </p>
+<p align="center"> 
+ <img src="./img/일반회원정보_조회.png" alt="일반회원정보 조회 화면" width="700" height="300"/> 
+</p> 
+
+<p align="center"> 
+ <img src="./img/회원탈퇴.png" alt="회원탈퇴 화면" width="700" height="300"/> 
+</p> 
+
+<p align="center"> 
+ <img src="./img/관리자회원정보_조회.png" alt="관리자회원정보 조회 화면" width="700" height="300"/> 
+</p>
 
 ### 5. 회원정보 수정
 
@@ -107,13 +127,17 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 
 이메일 형식에 유의하여 수정하면 됩니다.
 
-<p align="center"> <img src="./img/회원정보수정.png" alt="회원정보 수정 화면" width="700" height="300"/> </p>
+<p align="center"> 
+ <img src="./img/회원정보수정.png" alt="회원정보 수정 화면" width="700" height="300"/> 
+</p>
 
 ### 6. 계좌목록 조회
 
 필터 기능을 통해 예금 계좌와 대출 계좌만 선택하여 조회할 수 있습니다.
 
-<p align="center"> <img src="./img/계좌목록.png" alt="계좌 목록 화면" width="700" height="300"/> </p>
+<p align="center"> 
+ <img src="./img/계좌목록.png" alt="계좌 목록 화면" width="700" height="300"/> 
+</p>
 
 ### 7. 계좌상세화면
 
@@ -121,7 +145,13 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 
 버튼을 통해 이체, 입출금, 계좌명 수정, 예금 해지 기능을 사용할 수 있습니다.
 
-<p align="center"> <img src="./img/계좌상세화면.png" alt="계좌 상세 화면" width="700" height="300"/> </p> <p align="center"> <img src="./img/계좌상세화면_거래내역추가.png" alt="계좌상세화면_거래내역추가" width="700" height="300"/> </p>
+<p align="center"> 
+ <img src="./img/계좌상세화면.png" alt="계좌 상세 화면" width="700" height="300"/> 
+</p> 
+
+<p align="center"> 
+ <img src="./img/계좌상세화면_거래내역추가.png" alt="계좌상세화면_거래내역추가" width="700" height="300"/> 
+</p>
 
 ### 8. 계좌명 수정
 
@@ -129,7 +159,9 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 
 기존 이름을 삭제한 후 원하는 새 계좌명으로 수정할 수 있습니다.
 
-<p align="center"> <img src="./img/계좌명_수정.png" alt="계좌명 수정" width="700" height="300"/> </p>
+<p align="center">
+ <img src="./img/계좌명_수정.png" alt="계좌명 수정" width="700" height="300"/> 
+</p>
 
 ### 9. 입출금
 
@@ -137,7 +169,12 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 
 메모 기능은 기본적인 스타일을 제공합니다.
 
-<p align="center"> <img src="./img/입금화면.png" alt="입금 화면" width="700" height="300"/> </p> <p align="center"> <img src="./img/출금실행화면.png" alt="출금 실행 화면" width="700" height="300"/> </p>
+<p align="center"> 
+ <img src="./img/입금화면.png" alt="입금 화면" width="700" height="300"/> 
+</p> 
+<p align="center"> 
+ <img src="./img/출금실행화면.png" alt="출금 실행 화면" width="700" height="300"/> 
+</p>
 
 ### 10. 이체
 
@@ -178,9 +215,4 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 </p>
 
 ## 8. 🎇 프로젝트 후기
-언젠가 은행 시스템에 대해 알게 된 점을 바탕으로 내가 직접 은행 시스템을 구현해보고 싶었는데 기회가 와서 좋았다.
-수업 시간에 배운 CRUD를 혼자 복습하며 연습해 볼 수 있었다.
-프로젝트 진행 과정에서 AI를 적극적으로 활용하게 됐는데, 내 생각보다 AI가 내가 원하는 데로 코드를 짜주지는 않는다는 사실을 알게 되었다. 
-내가 원했던 건 마치 램프 요정 지니에게 소원을 빌면 알아서 잘 해주는 거였지만 실제로는 AI가 내 의도대로 코딩하지 않는 경우도 많았다.
-그럼에도 불구하고 AI 덕을 많이 보았다. 특히 페이지 꾸미는 건 거의 전적으로 AI에게 맡겼다.
-이번 프로젝트 경험은 개발 과정에 대해 직접 느껴볼 수 있는 시간이었다.
+본 프로젝트를 통해 은행 전산 시스템의 기본 구조를 이해하고, 이를 직접 설계 및 구현하는 경험을 했습니다. Vue와 Express를 활용하여 프론트엔드와 백엔드 간의 데이터 흐름을 구현하며, 수업 시간에 학습한 CRUD 개념을 실제 서비스 기능으로 적용해 볼 수 있었습니다. 특히 로그인, 계좌 관리, 입출금 및 이체 기능을 구현하면서 사용자 요청에 따른 데이터 처리 과정과 화면 간 흐름을 고려한 설계의 중요성을 느꼈습니다. 또한 기능 구현에 그치지 않고 유지보수와 확장을 고려한 구조를 고민하며 개발을 진행했고, 이를 통해 전체 개발 프로세스를 이해하고 문제 해결 역량을 향상시킬 수 있었습니다.
