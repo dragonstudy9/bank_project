@@ -5,10 +5,9 @@ vue/express를 활용한 은행 전산 시스템 만들기
 
 
 ## 2. 💡 프로젝트 소개  
-원정은행은 기존의 오프라인으로 고객과 상호작용하는 기존 방식에서 벗어나
-온라인으로 고객과 소통하는 인터넷 친화적인 은행입니다.
-
-원정은행을 통해 자산을 불려보세요!
+원정은행은 **은행 전산 시스템의 핵심 기능을 구현한 웹 기반 프로젝트**입니다.  
+회원 관리, 계좌 관리, 입출금·이체 처리 등  
+실제 금융 시스템의 흐름을 고려하여 설계하고 구현했습니다.
 
 ## 3. 👨‍👩‍👦‍👦 팀원 구성
  <table>
@@ -35,34 +34,47 @@ vue/express를 활용한 은행 전산 시스템 만들기
 
 ## 6. 🖼️ 기획 및 설계
 
-엑셀을 통해 작업하였다. 
+은행 시스템 구조를 이해하기 위해  
+**엑셀을 활용하여 데이터 구조와 페이지 흐름을 먼저 설계**했습니다.
 
-![alt text](./img/엑셀설계1.png)
+<p align="center">
+  <img src="./img/엑셀설계1.png" width="700" height="300"/>
+</p>
 
-![alt text](./img/엑셀설계DB1.png)
+<p align="center">
+  <img src="./img/엑셀설계DB1.png" width="700" height="300"/>
+</p>
 
-![alt text](./img/엑셀설계DB2.png)
+<p align="center">
+  <img src="./img/엑셀설계DB2.png" width="700" height="300"/>
+</p>
 
-![alt text](./img/엑셀설계DB3.png)
+<p align="center">
+  <img src="./img/엑셀설계DB3.png" width="700" height="300"/>
+</p>
 
-![alt text](./img/엑셀설계DB4.png)
+<p align="center">
+  <img src="./img/엑셀설계DB4.png" width="700" height="300"/>
+</p>
 
-![alt text](./img/엑셀설계_페이지구성.png)
+<p align="center">
+  <img src="./img/엑셀설계_페이지구성.png" width="700" height="300"/>
+</p>
 
 ## 7. 📑 페이지별 주요 기능 
 
 ### 1. 메인화면
 
-- 로그인, 회원가입, 계좌조회, 예금추가 기능을 접근 할 수 있는 메인 페이지이다.
-- 로그인 후에는 회원정보 조회와 로그아웃 기능을 접근 가능하다.
-- 관리자인 경우, 관리자 전용 버튼을 통해 관리자 전용 페이지에 접근 가능하다.
+- 로그인, 회원가입, 계좌조회, 예금추가 기능을 접근 할 수 있는 메인 페이지입니다.
+- 로그인 후에는 회원정보 조회와 로그아웃 기능을 접근 가능합니다.
+- 관리자인 경우, 관리자 전용 버튼을 통해 관리자 전용 페이지에 접근 가능합니다.
 
 <p align="center">
-  <img src="./img/메인화면.png" alt="메인 화면" width="700"/>
+  <img src="./img/메인화면.png" alt="메인 화면" width="700" height="300"/>
 </p>
 
 <p align="center">
-  <img src="./img/로그인후_메인화면.png" alt="로그인 후 메인 화면" width="700"/>
+  <img src="./img/로그인후_메인화면.png" alt="로그인 후 메인 화면" width="700" height="300"/>
 </p>
 
 ### 2. 로그인
