@@ -4,27 +4,12 @@
 vue/express를 활용한 은행 전산 시스템 만들기
 
 
-## 2. 💡 프로젝트 소개  
+## 2. 💡 프로젝트 소개  (개발 기간 : 2025.09.12 ~ 2025.09.19 (1주간))
 원정은행은 **은행 전산 시스템의 핵심 기능을 구현한 웹 기반 프로젝트**입니다.  
 회원 관리, 계좌 관리, 입출금·이체 처리 등  
 실제 금융 시스템의 흐름을 고려하여 설계하고 구현했습니다.
 
-## 3. 👨‍👩‍👦‍👦 팀원 구성
- <table>
-    <tr>
-        <th>이름</th>                    
-        <th>GitHub 프로필</th>
-    </tr>
-    <tr>
-        <td>조원정</td>
-        <td>https://github.com/dragonstudy9</td>
-    </tr>
-</table>
-
-## 4. ⏱️ 개발 기간  
-**2025.09.12 ~ 2025.09.19 (1주간)**
-
-## 5. 🛠 사용 기술
+## 3. 🛠 사용 기술
 | 분류 | 기술 |
 |------|------|
 | Frontend | ![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D) |
@@ -32,7 +17,7 @@ vue/express를 활용한 은행 전산 시스템 만들기
 | Database | ![Oracle](https://img.shields.io/badge/Oracle-F80000?style=for-the-badge&logo=oracle&logoColor=white) |
 | AI | ![Google Gemini](https://img.shields.io/badge/google%20gemini-8E75B2?style=for-the-badge&logo=google%20gemini&logoColor=white)
 
-## 6. 🖼️ 기획 및 설계
+## 4. 🖼️ 기획 및 설계
 
 은행 시스템 구조를 이해하기 위해  
 **엑셀을 활용하여 데이터 구조와 페이지 흐름을 먼저 설계**했습니다.
@@ -61,7 +46,7 @@ vue/express를 활용한 은행 전산 시스템 만들기
   <img src="./img/엑셀설계_페이지구성.png" width="700" height="300"/>
 </p>
 
-## 7. 📑 페이지별 주요 기능
+## 5. 📑 페이지별 주요 기능
 
 ### 1. 메인화면
 
@@ -214,5 +199,5 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
  <img src="./img/관리자전용_거래내역_페이지.png" alt="관리자전용 거래내역 페이지" width="700" height="300"/> 
 </p>
 
-## 8. 🎇 프로젝트 후기
+## 6. 🎇 프로젝트 후기
 본 프로젝트를 통해 은행 전산 시스템의 기본 구조를 이해하고, 이를 직접 설계 및 구현하는 경험을 했습니다. Vue와 Express를 활용하여 프론트엔드와 백엔드 간의 데이터 흐름을 구현하며, 수업 시간에 학습한 CRUD 개념을 실제 서비스 기능으로 적용해 볼 수 있었습니다. 특히 로그인, 계좌 관리, 입출금 및 이체 기능을 구현하면서 사용자 요청에 따른 데이터 처리 과정과 화면 간 흐름을 고려한 설계의 중요성을 느꼈습니다. 또한 기능 구현에 그치지 않고 유지보수와 확장을 고려한 구조를 고민하며 개발을 진행했고, 이를 통해 전체 개발 프로세스를 이해하고 문제 해결 역량을 향상시킬 수 있었습니다.
