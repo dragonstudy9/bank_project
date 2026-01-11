@@ -176,7 +176,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 계좌명과 금액을 입력하면 예금이 추가됩니다.
 
 <p align="center"> 
- <img src="./img/예금추가.png" alt="예금 추가" width="500" height="300"/> 
+ <img src="./img/예금추가.png" alt="예금 추가" width="300" height="300"/> 
 </p>
 
 ### 12. 관리자 전용 페이지
