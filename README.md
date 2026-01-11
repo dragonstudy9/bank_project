@@ -73,7 +73,7 @@ vue/express를 활용한 은행 전산 시스템 만들기
 회원가입이 되어 있지 않은 사용자를 위해 회원가입 버튼을 통해 회원가입 페이지로 바로 이동할 수 있도록 하였습니다.
 
 <p align="center"> 
- <img src="./img/로그인화면.png" alt="로그인 화면" width="700" height="300"/> 
+ <img src="./img/로그인화면.png" alt="로그인 화면" width="500" height="300"/> 
 </p>
 
 ### 3. 회원가입
@@ -85,7 +85,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 이메일을 입력하는 경우 이메일 형식에 맞아야만 회원가입이 가능합니다.
 
 <p align="center"> 
- <img src="./img/회원가입.png" alt="회원가입 화면" width="700" height="300"/> 
+ <img src="./img/회원가입.png" alt="회원가입 화면" width="500" height="300"/> 
 </p>
 
 ### 4. 회원정보 조회
@@ -95,15 +95,15 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 관리자는 회원탈퇴 버튼에 접근할 수 없습니다.
 
 <p align="center"> 
- <img src="./img/일반회원정보_조회.png" alt="일반회원정보 조회 화면" width="700" height="300"/> 
+ <img src="./img/일반회원정보_조회.png" alt="일반회원정보 조회 화면" 5idth="700" height="300"/> 
 </p> 
 
 <p align="center"> 
- <img src="./img/회원탈퇴.png" alt="회원탈퇴 화면" width="700" height="300"/> 
+ <img src="./img/회원탈퇴.png" alt="회원탈퇴 화면" width="500" height="300"/> 
 </p> 
 
 <p align="center"> 
- <img src="./img/관리자회원정보_조회.png" alt="관리자회원정보 조회 화면" width="700" height="300"/> 
+ <img src="./img/관리자회원정보_조회.png" alt="관리자회원정보 조회 화면" width="500" height="300"/> 
 </p>
 
 ### 5. 회원정보 수정
@@ -113,7 +113,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 이메일 형식에 유의하여 수정하면 됩니다.
 
 <p align="center"> 
- <img src="./img/회원정보수정.png" alt="회원정보 수정 화면" width="700" height="300"/> 
+ <img src="./img/회원정보수정.png" alt="회원정보 수정 화면" width="500" height="300"/> 
 </p>
 
 ### 6. 계좌목록 조회
@@ -121,7 +121,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 필터 기능을 통해 예금 계좌와 대출 계좌만 선택하여 조회할 수 있습니다.
 
 <p align="center"> 
- <img src="./img/계좌목록.png" alt="계좌 목록 화면" width="700" height="300"/> 
+ <img src="./img/계좌목록.png" alt="계좌 목록 화면" width="500" height="300"/> 
 </p>
 
 ### 7. 계좌상세화면
@@ -131,11 +131,11 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 버튼을 통해 이체, 입출금, 계좌명 수정, 예금 해지 기능을 사용할 수 있습니다.
 
 <p align="center"> 
- <img src="./img/계좌상세화면.png" alt="계좌 상세 화면" width="700" height="300"/> 
+ <img src="./img/계좌상세화면.png" alt="계좌 상세 화면" width="500" height="300"/> 
 </p> 
 
 <p align="center"> 
- <img src="./img/계좌상세화면_거래내역추가.png" alt="계좌상세화면_거래내역추가" width="700" height="300"/> 
+ <img src="./img/계좌상세화면_거래내역추가.png" alt="계좌상세화면_거래내역추가" width="500" height="300"/> 
 </p>
 
 ### 8. 계좌명 수정
@@ -145,7 +145,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 기존 이름을 삭제한 후 원하는 새 계좌명으로 수정할 수 있습니다.
 
 <p align="center">
- <img src="./img/계좌명_수정.png" alt="계좌명 수정" width="700" height="300"/> 
+ <img src="./img/계좌명_수정.png" alt="계좌명 수정" width="500" height="300"/> 
 </p>
 
 ### 9. 입출금
@@ -155,10 +155,10 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 메모 기능은 기본적인 스타일을 제공합니다.
 
 <p align="center"> 
- <img src="./img/입금화면.png" alt="입금 화면" width="700" height="300"/> 
+ <img src="./img/입금화면.png" alt="입금 화면" width="500" height="300"/> 
 </p> 
 <p align="center"> 
- <img src="./img/출금실행화면.png" alt="출금 실행 화면" width="700" height="300"/> 
+ <img src="./img/출금실행화면.png" alt="출금 실행 화면" width="500" height="300"/> 
 </p>
 
 ### 10. 이체
@@ -168,7 +168,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 메모 기능을 제공합니다.
 
 <p align="center"> 
- <img src="./img/이체화면.png" alt="이체 화면" width="700" height="300"/> 
+ <img src="./img/이체화면.png" alt="이체 화면" width="500" height="300"/> 
 </p>
 
 ### 11. 예금 추가
@@ -176,7 +176,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 계좌명과 금액을 입력하면 예금이 추가됩니다.
 
 <p align="center"> 
- <img src="./img/예금추가.png" alt="예금 추가" width="700" height="300"/> 
+ <img src="./img/예금추가.png" alt="예금 추가" width="500" height="300"/> 
 </p>
 
 ### 12. 관리자 전용 페이지
@@ -190,13 +190,13 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 거래내역은 관리자만 삭제할 수 있습니다.
 
 <p align="center">
- <img src="./img/관리자전용_고객_정보_페이지.png" alt="관리자전용 고객 정보 페이지" width="700" height="300"/> 
+ <img src="./img/관리자전용_고객_정보_페이지.png" alt="관리자전용 고객 정보 페이지" width="500" height="300"/> 
 </p> 
 <p align="center"> 
- <img src="./img/관리자전용_계좌_정보_페이지.png" alt="관리자전용 계좌 정보 페이지" width="700" height="300"/> 
+ <img src="./img/관리자전용_계좌_정보_페이지.png" alt="관리자전용 계좌 정보 페이지" width="500" height="300"/> 
 </p> 
 <p align="center"> 
- <img src="./img/관리자전용_거래내역_페이지.png" alt="관리자전용 거래내역 페이지" width="700" height="300"/> 
+ <img src="./img/관리자전용_거래내역_페이지.png" alt="관리자전용 거래내역 페이지" width="500" height="300"/> 
 </p>
 
 ## 6. 🎇 프로젝트 후기
