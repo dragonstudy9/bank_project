@@ -113,7 +113,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 이메일 형식에 유의하여 수정하면 됩니다.
 
 <p align="center"> 
- <img src="./img/회원정보수정.png" alt="회원정보 수정 화면" width="300" height="300"/> 
+ <img src="./img/회원정보수정.png" alt="회원정보 수정 화면" width="200" height="300"/> 
 </p>
 
 ### 6. 계좌목록 조회
@@ -121,7 +121,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 필터 기능을 통해 예금 계좌와 대출 계좌만 선택하여 조회할 수 있습니다.
 
 <p align="center"> 
- <img src="./img/계좌목록.png" alt="계좌 목록 화면" width="500" height="300"/> 
+ <img src="./img/계좌목록.png" alt="계좌 목록 화면" width="300" height="300"/> 
 </p>
 
 ### 7. 계좌상세화면
