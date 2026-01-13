@@ -73,7 +73,7 @@ vue/express를 활용한 은행 전산 시스템 만들기
 회원가입이 되어 있지 않은 사용자를 위해 회원가입 버튼을 통해 회원가입 페이지로 바로 이동할 수 있도록 하였습니다.
 
 <p align="center"> 
- <img src="./img/로그인화면.png" alt="로그인 화면" width="500" height="300"/> 
+ <img src="./img/로그인화면.png" alt="로그인 화면" width="300" height="300"/> 
 </p>
 
 ### 3. 회원가입
@@ -85,7 +85,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 이메일을 입력하는 경우 이메일 형식에 맞아야만 회원가입이 가능합니다.
 
 <p align="center"> 
- <img src="./img/회원가입.png" alt="회원가입 화면" width="500" height="300"/> 
+ <img src="./img/회원가입.png" alt="회원가입 화면" width="300" height="300"/> 
 </p>
 
 ### 4. 회원정보 조회
