@@ -95,15 +95,15 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 관리자는 회원탈퇴 버튼에 접근할 수 없습니다.
 
 <p align="center"> 
- <img src="./img/일반회원정보_조회.png" alt="일반회원정보 조회 화면" 5idth="700" height="300"/> 
+ <img src="./img/일반회원정보_조회.png" alt="일반회원정보 조회 화면" 5idth="600" height="300"/> 
 </p> 
 
 <p align="center"> 
- <img src="./img/회원탈퇴.png" alt="회원탈퇴 화면" width="500" height="300"/> 
+ <img src="./img/회원탈퇴.png" alt="회원탈퇴 화면" width="300" height="300"/> 
 </p> 
 
 <p align="center"> 
- <img src="./img/관리자회원정보_조회.png" alt="관리자회원정보 조회 화면" width="500" height="300"/> 
+ <img src="./img/관리자회원정보_조회.png" alt="관리자회원정보 조회 화면" width="300" height="300"/> 
 </p>
 
 ### 5. 회원정보 수정
