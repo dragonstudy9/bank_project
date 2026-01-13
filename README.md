@@ -57,11 +57,11 @@ vue/express를 활용한 은행 전산 시스템 만들기
 관리자인 경우, 관리자 전용 버튼을 통해 관리자 전용 페이지에 접근 가능합니다.
 
 <p align="center"> 
- <img src="./img/메인화면.png" alt="메인 화면" width="700" height="300"/> 
+ <img src="./img/메인화면.png" alt="메인 화면" width="500" height="300"/> 
 </p> 
 
 <p align="center"> 
- <img src="./img/로그인후_메인화면.png" alt="로그인 후 메인 화면" width="700" height="300"/> 
+ <img src="./img/로그인후_메인화면.png" alt="로그인 후 메인 화면" width="500" height="300"/> 
 </p>
 
 ### 2. 로그인
