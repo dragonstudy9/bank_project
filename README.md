@@ -135,7 +135,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 </p> 
 
 <p align="center"> 
- <img src="./img/계좌상세화면_거래내역추가.png" alt="계좌상세화면_거래내역추가" width="500" height="300"/> 
+ <img src="./img/계좌상세화면_거래내역추가.png" alt="계좌상세화면_거래내역추가" width="300" height="300"/> 
 </p>
 
 ### 8. 계좌명 수정
@@ -145,7 +145,7 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 기존 이름을 삭제한 후 원하는 새 계좌명으로 수정할 수 있습니다.
 
 <p align="center">
- <img src="./img/계좌명_수정.png" alt="계좌명 수정" width="500" height="300"/> 
+ <img src="./img/계좌명_수정.png" alt="계좌명 수정" width="300" height="300"/> 
 </p>
 
 ### 9. 입출금
