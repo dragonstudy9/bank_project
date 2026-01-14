@@ -155,10 +155,10 @@ DB에 이미 존재하는 ID가 있으면 회원가입이 불가능하도록 하
 메모 기능은 기본적인 스타일을 제공합니다.
 
 <p align="center"> 
- <img src="./img/입금화면.png" alt="입금 화면" width="300" height="300"/> 
+ <img src="./img/입금화면.png" alt="입금 화면" width="200" height="300"/> 
 </p> 
 <p align="center"> 
- <img src="./img/출금실행화면.png" alt="출금 실행 화면" width="300" height="300"/> 
+ <img src="./img/출금실행화면.png" alt="출금 실행 화면" width="200" height="300"/> 
 </p>
 
 ### 10. 이체
